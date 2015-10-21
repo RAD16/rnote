@@ -24,13 +24,13 @@
        printf("RNote:_"); 
          scanf("%[^\n]", note);        // scanf reads input from stdin until user hits return
         
-// Try with fputc: 
+// Investigate writing  with fputc ??  Maybe not --
+// working now
 
          FILE *src_p;      // create file pointer
         src_p = fopen("RNOTE", "a"); // Write to master note  file
-          fputc(note, src_p);         // write in separator to keep notes file neat
-;        // write note to file
-          fputc(sep, src_p);         // write in separator to keep notes file neat
+          fprintf(src_p, "%s", note);        // write note to file
+          fprintf(src_p, "%s",sep);         // write in separator to keep notes file neat
         fclose(src_p);
 
         src_p = fopen("now", "a"); // Write to daily file
