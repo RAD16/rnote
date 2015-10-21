@@ -1,5 +1,4 @@
-﻿/* Simple C program that allows for quick, one-line notes to be recorded from the command line
-   into a single file to be parsed later. 
+﻿/* Simple C program that allows for quick, one-line notes to be recorded from the command line into a single file to be parsed later. 
    
    TO-DO: 
     - error handling
@@ -10,12 +9,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
+/* -------- Function workshop -------------
+
+// INSTANT NOTE - under development
+
+// TIMESTAMP function -- under development 
+
+ -------- end workshop -------------*/
 
 // WRITE NOTE main 
-// 	*** Not Working*** Segmentaion Fault: core dumped
-// something with the way it's printing to file
-
-
     int write_note() 
     {
          char note[1001];      // initialize variables
@@ -25,7 +29,6 @@
          scanf("%[^\n]", note);        // scanf reads input from stdin until user hits return
         
 // Investigate writing  with fputc ??  Maybe not --
-// working now
 
          FILE *src_p;      // create file pointer
         src_p = fopen("RNOTE", "a"); // Write to master note  file
@@ -41,15 +44,7 @@
         return 0;
     }
     
-    
-// INSTANT NOTE - under development
-
-
-
- /* PARSE OPTIONS
-  Replace array of If statements with more efficient menu option (switches or something)  
- */
- 
+ // PARSE OPTIONS
     int parse_opts(char *opt)
      {
        int c = (strcmp(opt, "-c"));  // Config ? Not yet available
@@ -91,33 +86,9 @@
    return 0;
       
   }
- 
-
-     
-   //Below function should be new primary note-writing function, replace uncommented one below it. 
-    /*
-    int write_note_now(char *n)
-te
-{
-    printf("Note: %s\n", n);
-    FILE *np, *RN;
-        char sep[] = "\n-----------\n";
-        np =fopen("now", "a");
-            fprintf(np, "%s", sep);
-            fprintf(np, "%s\n", n); 
-        fclose(np);
-        RN = fopen("RNOTES", "a");
-            fprintf(RN, "%s", sep);
-            fprintf(RN, "%s\n", n); 
-        fclose(RN);
-        
-    return 0;
-}
-    
-    */
-
     
     
+// File rotation still under dev
 /* mv_now_yest and mv_yest_dbf to be replaced by single function that accepts args
     that specify the source and target files for copying */
 
@@ -153,7 +124,7 @@ int mv_yest_dbf()           // cycle: copy "yesterday" note to "day before"
     return 0;
 }
 
-// display notes from current calendar day
+// DISPLAY NOTES from current calendar day
     int print_note_today()  // Function has not been tested
     {
             
@@ -168,7 +139,7 @@ int mv_yest_dbf()           // cycle: copy "yesterday" note to "day before"
         return 0;
     }
 
-// display all notes in RNotes file
+// DISPLAY ALL notes in RNotes file
 // option  ' -a '
     int print_note_all() //Function tested and working!
     {
@@ -184,10 +155,7 @@ int mv_yest_dbf()           // cycle: copy "yesterday" note to "day before"
         return 0;
     }
     
-/* open notes for editing in vim
-    Create options to pass either current day or master file to function, so that
-    ' *note_file ' gets assigned either the 'day' file or the 'RNOTE' file
-*/
+// EDIT notes in vim 
     int edit_note(char *opt_ed)    // 
     {
         char today_note[] = "now";    // File variables
