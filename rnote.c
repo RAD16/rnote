@@ -194,8 +194,8 @@ int mv_yest_dbf()           // cycle: copy "yesterday" note to "day before"
         char all_notes[] = "RNOTE";
         char file[15], command[20];
         
-        int tn = (strcmp(opt_ed, "-Ed"));
-        int an = (strcmp(opt_ed, "-Ea"));
+        int tn = (strcmp(opt_ed, "-e"));
+        int an = (strcmp(opt_ed, "-ea"));
         
         if(tn == 0) {
             char *file = today_note;
@@ -219,8 +219,8 @@ int mv_yest_dbf()           // cycle: copy "yesterday" note to "day before"
 // MAIN FUNCTION CALL
       int main(int argc, char *argv[]) 
 {
-       const char config_dir[] = "~/.rnote/";
-       mkdir(config_dir, 0700);
+       /* const char config_dir[] = "~/.rnote/";
+       mkdir(config_dir, 0700); */
        
        switch(argc)
        {
