@@ -4,7 +4,7 @@
 /* DEV file for rnote timestamp */
 
 	// This function will full date and time 
-	void stamp()
+/* 	void stamp()
 {
         time_t time_raw_format;
 		struct tm * time_struct;
@@ -16,6 +16,7 @@
 	
 		strftime (tstamp,100,"%Y-%m-%d\n%T\n", time_struct);
 }
+*/
 
 int main ()
 	{   
@@ -26,9 +27,17 @@ int main ()
 	   /*Print this message to file, prefix w/
 	   timestamp */
 
+        time_t time_raw_format;
+		struct tm * time_struct;
+
+		char sep[10] = "\n-------\n";
+		time ( &time_raw_format );
+		time_struct = localtime ( &time_raw_format );
+	
+		strftime (tstamp,100,"%Y-%m-%d\n%T\n", time_struct);
 		FILE *fp;
 		fp = fopen("pound", "a");
-		stamp();
+		    fprintf(fp,"%s", sep);
 		    fprintf(fp,"%s", tstamp);
 		    fprintf(fp,"%s", ans);
 		fclose(fp);
