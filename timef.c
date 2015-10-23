@@ -38,7 +38,7 @@ int main ()
 		FILE *fp;
 		fp = fopen("pound", "a");
 		    fprintf(fp,"%s", sep);
-		    fprintf(fp,"%s", tstamp);
+		    fprintf(fp,"%s\n", tstamp);
 		    fprintf(fp,"%s", ans);
 		fclose(fp);
 
