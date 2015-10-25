@@ -32,11 +32,22 @@
 
          FILE *src_p;      // create file pointer
         src_p = fopen("RNOTE", "a"); // Write to master note  file
-          fprintf(src_p, "%s", note);        // write note to file
+
+		char tstamp[100];
+		time_t time_raw_format;
+		struct tm * time_struct;
+
+		time ( &time_raw_format );
+		time_struct = localtime ( &time_raw_format );
+		strftime (tstamp,100,"%Y-%m-%d\n%T\n", time_struct);
+
+					fprintf(src_p,"%s\n", tstamp);
+          fprintf(src_p, "\n%s", note);        // write note to file
           fprintf(src_p, "%s",sep);         // write in separator to keep notes file neat
         fclose(src_p);
 
         src_p = fopen("now", "a"); // Write to daily file
+					fprintf(src_p,"%s\n", tstamp);
           fprintf(src_p, "%s", note);        // write note to file
           fprintf(src_p, "%s",sep);         // write in separator to keep notes file neat
         fclose(src_p);
