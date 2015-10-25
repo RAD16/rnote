@@ -20,7 +20,7 @@
 
 int main ()
 	{   
-	    char ans[100], tstamp[100];
+	    char ans[100], tstamp[100], sep[10] = "\n-------\n";
 	    printf("Hello baby! Give something to stamp!\n");
 	    	scanf("%[^\n]", ans);
 
@@ -30,11 +30,10 @@ int main ()
         time_t time_raw_format;
 		struct tm * time_struct;
 
-		char sep[10] = "\n-------\n";
 		time ( &time_raw_format );
 		time_struct = localtime ( &time_raw_format );
-	
 		strftime (tstamp,100,"%Y-%m-%d\n%T\n", time_struct);
+
 		FILE *fp;
 		fp = fopen("pound", "a");
 		    fprintf(fp,"%s", sep);
