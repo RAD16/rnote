@@ -26,19 +26,15 @@ int timing() {
 }
 
 int CreateNote(char *note) {
-	printf("Notefile: %s \n", notefile);
-	
 	char wholeFile[100];
 	char *notedir = NOTES_DIRECTORY;
 	
 	strcpy(notefile, notedir);
 	strcat(notefile, note);
 
-	printf("Notefile: %s \n", notefile);
-
 	FILE *fp;
 	fp = fopen(notefile, "a");
-		fprintf(fp, "------------------------\n");
+		fprintf(fp, "\n------------------------\n");
 		fprintf(fp, MeTime);
 		fprintf(fp, "------------------------\n");
 	fclose(fp);
@@ -51,7 +47,6 @@ int CreateNote(char *note) {
 */
 
 int EditNote() {    // 
-	printf("notefile: %s", notefile);
 	char command[50];
 	sprintf(command, "vis %s", notefile);
         system(command); 
@@ -59,8 +54,12 @@ int EditNote() {    //
     }
 
 int main(int argc, char *argv[]) {
-	timing();
-	CreateNote(argv[1]);
-	EditNote();		
+	if(argc == 1) {
+		printf("Must give an argument.\n");
+	} else {
+		timing();
+		CreateNote(argv[1]);
+		EditNote();	
+	}	
 	return 0;
 }
