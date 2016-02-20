@@ -45,42 +45,35 @@ int mknote() {
 	strcpy(file, notedir);
 	strcat(file, rtime);
 
-/*	FILE *fp;
-	fp = fopen(file, "a");
-	fclose(fp);
-*/
-	return 0;
-}
-
-int namenote(char *name) {
-	strcpy(file, notedir);
-	strcat(file, name);
-
-/*	FILE *fp;
-	fp = fopen(file, "a");
-	fclose(fp);
-*/
-	return 0;
-}
-
-int edit() {    // 
 	char com[50];
-
 	sprintf(com, "vis %s", file);
         system(com); 
 
 	return 0;
-    }
+}
+
+int namenote(char *name) {
+
+
+	strcpy(file, notedir);
+	strcat(file, name);
+
+	char com[50];
+	sprintf(com, "vis %s", file);
+        system(com); 
+
+	return 0;
+}
 
 int main(int argc, char *argv[]) {
-	if(argc == 1) {
+	if(argc > 2) {
+		printf("Too many arguments. Enter 0-1 file names.\n");
+		exit(0);
+	} else if(argc == 1) {
 		mknote();
 	} else if(argc == 2) {
 		namenote(argv[1]);
-	} else {
-		printf("Too many arguments. Enter 0-1 file names.\n");
 	}
-	edit();
 
 	return 0;
 }
