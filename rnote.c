@@ -74,9 +74,11 @@ int edit() {    //
 int main(int argc, char *argv[]) {
 	if(argc == 1) {
 		mknote();
-	} else {
+	} else if(argc == 2) {
 		namenote(argv[1]);
-	}	
+	} else {
+		printf("Too many arguments. Enter 0-1 file names.\n");
+	}
 	edit();
 
 	return 0;
