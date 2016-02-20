@@ -45,9 +45,10 @@ int mknote() {
 	strcpy(file, notedir);
 	strcat(file, rtime);
 
-	FILE *fp;
+/*	FILE *fp;
 	fp = fopen(file, "a");
 	fclose(fp);
+*/
 	return 0;
 }
 
@@ -55,10 +56,10 @@ int namenote(char *name) {
 	strcpy(file, notedir);
 	strcat(file, name);
 
-	FILE *fp;
+/*	FILE *fp;
 	fp = fopen(file, "a");
 	fclose(fp);
-
+*/
 	return 0;
 }
 
