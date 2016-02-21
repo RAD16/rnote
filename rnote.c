@@ -1,79 +1,54 @@
 /*
 * Open editor to write a note.
 * C program -- first arg becomes file name
-* 	program prints time stamp as first entry
-*	notes saved in NOTES_DIRECTORY
-*
-*
-*
-*
+*	notes saved in $HOME/NOTES_DIR
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 
-#define NOTES_DIRECTORY "/home/rad16/notes/"
+/*Name of directory where notes are stored */
+#define NOTES_DIR "/notes/"
 
-char file[100];
-char notedir[] = NOTES_DIRECTORY;
-char rtime[20];
-
-/*
-int timing() {
-	time_t ts;
-	time(&ts);
-	MeTime = ctime(&ts);
-	return 0;
-}
-*/
-
-void stamp() {
-
-        time_t ts;
-	struct tm *date;
-
-	time(&ts);
-	date = localtime(&ts);
-	strftime(rtime, 20, "%Y-%m-%d", date);
+void write(char *file) {
+	char com[50];
+	sprintf(com, "vis %s", file);
+        system(com); 
 }
 
-int mknote() {
+void mkfile(int argc, char *fname) {
 	
-	stamp();
+	char *file;
+	file = getenv("HOME");
+	strcat(file, NOTES_DIR);
 
-	strcpy(file, notedir);
-	strcat(file, rtime);
+	if(argc == 1) {
+		char stamp[12];
+	        time_t ts;
+		struct tm *date;
+	
+		time(&ts);
+		date = localtime(&ts);
+		strftime(stamp, 12, "%Y-%m-%d", date);
 
-	char com[50];
-	sprintf(com, "vis %s", file);
-        system(com); 
+		strcat(file, stamp);
 
-	return 0;
-}
-
-int namenote(char *name) {
-
-
-	strcpy(file, notedir);
-	strcat(file, name);
-
-	char com[50];
-	sprintf(com, "vis %s", file);
-        system(com); 
-
-	return 0;
+	} else if(argc == 2) {
+		strcat(file, fname);
+	}
+	
+	write(file);			
 }
 
 int main(int argc, char *argv[]) {
+	
 	if(argc > 2) {
-		printf("Too many arguments. Enter 0-1 file names.\n");
-		exit(0);
-	} else if(argc == 1) {
-		mknote();
-	} else if(argc == 2) {
-		namenote(argv[1]);
-	}
+		printf("Too many args. Give 0-1 filenames.\n");
+		exit(0);	
+	} 
+
+	mkfile(argc, argv[1]);
 
 	return 0;
 }
