@@ -22,8 +22,8 @@ void
 mkfile(int argc, char *fname) {
 	
 	char *file;
-	file = getenv("HOME");
 
+	file = getenv("HOME");
 	strcat(file, NOTES_DIR);
 
 	if(argc == 1) {
@@ -46,13 +46,34 @@ mkfile(int argc, char *fname) {
 
 int
 cli_note(void) {
-	char buf[1001]; 
+	char buf[1001], stamp[12], tstamp[12], *file;
+        time_t ts;
+	struct tm *t;
+	struct tm *date;
+
+	file = getenv("HOME");
+	strcat(file, NOTES_DIR);
+
 	printf("Note: ");
 	scanf("%[^\n]", buf); 
 
+	time(&ts);
+	t = localtime(&ts);
+	date = localtime(&ts);
+	
+	strftime(tstamp, 12, "%T", t);
+	strftime(stamp, 12, "%Y-%m-%d", date);
+	/* TESTS */
+	printf("%s \n", file);
+	printf("%s \n", buf);
+	/* END TESTS */
+	strcat(file, stamp);
+
+	printf("%s \n", file);
 	FILE *bp;
-	bp = fopen("NOTE", "a+");
-	fprintf(bp, "%s", buf);
+	bp = fopen(file, "a+");
+	fprintf(bp, "\n%s \n", tstamp);
+	fprintf(bp, "%s \n", buf);
 	fclose(bp);
 }
 
