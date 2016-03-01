@@ -11,16 +11,19 @@
 /*Name of directory where notes are stored */
 #define NOTES_DIR "/notes/"
 
-void write(char *file) {
+void
+write(char *file) {
 	char com[50];
 	sprintf(com, "vis %s", file);
         system(com); 
 }
 
-void mkfile(int argc, char *fname) {
+void
+mkfile(int argc, char *fname) {
 	
 	char *file;
 	file = getenv("HOME");
+
 	strcat(file, NOTES_DIR);
 
 	if(argc == 1) {
@@ -41,7 +44,8 @@ void mkfile(int argc, char *fname) {
 	write(file);			
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
 	
 	if(argc > 2) {
 		printf("Too many args. Give 0-1 filenames.\n");
