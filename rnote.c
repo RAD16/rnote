@@ -45,14 +45,36 @@ mkfile(int argc, char *fname) {
 }
 
 int
+cli_note(void) {
+	char buf[1001]; 
+	printf("Note: ");
+	scanf("%[^\n]", buf); 
+
+	FILE *bp;
+	bp = fopen("NOTE", "a+");
+	fprintf(bp, "%s", buf);
+	fclose(bp);
+}
+
+int
 main(int argc, char *argv[]) {
-	
-	if(argc > 2) {
+
+	if(argc > 3) {
 		printf("Too many args. Give 0-1 filenames.\n");
 		exit(0);	
 	} 
+	
+	if(argc == 2) {
 
-	mkfile(argc, argv[1]);
+		if(argv[1][0] == '-') {
+			if(argv[1][1] = 'm')
+				cli_note();
+			
+		} 
+	}
+
+	if(argc == 1)
+		mkfile(argc, argv[1]);
 
 	return 0;
 }
