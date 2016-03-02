@@ -10,6 +10,7 @@
 
 /*Name of directory where notes are stored */
 #define NOTES_DIR "/notes/"
+#define TIME_SIZE 12
 
 void
 write(char *file) {
@@ -18,74 +19,60 @@ write(char *file) {
         system(com); 
 }
 
+
 char
 *tstamp(char opt) {
-		char *stamp;
-	        time_t ts;
-		struct tm *stmp;
-		stamp = malloc(12 * sizeof(char));
-	
-		time(&ts);
-		stmp = localtime(&ts);
+	char *stamp;
+        time_t ts;
+	struct tm *stmp;
+	stamp = malloc(TIME_SIZE * sizeof(char));
+
+	time(&ts);
+	stmp = localtime(&ts);
 
 	if(opt == 'd') {
-		strftime(stamp, 12, "%Y-%m-%d", stmp);
-		
-		printf("Inside Function:\n");
-		printf("Option D: %s\n", stamp);
-
+		strftime(stamp, TIME_SIZE, "%Y-%m-%d", stmp);
 	} else {
-		strftime(stamp, 12, "%T", stmp);
-
-		printf("Inside Function:\n");
-		printf("Option T: %s\n", stamp);
+		strftime(stamp, TIME_SIZE, "%T", stmp);
 	}
 
 	return stamp;
 }
 
-void
-mkfile(int argc, char *fname) {
-	char *file;
-	if(argc == 1) {
-		char stamp[12];
-	        time_t ts;
-		struct tm *date;
+char 
+*mkfile(char opt, char *filename) {
+	char *file, *stamp;
+	file = getenv("HOME");
+	strcat(file, NOTES_DIR);
+	printf("In fn Before Assmt:\n%s \n", file);
 	
-		time(&ts);
-		date = localtime(&ts);
-		strftime(stamp, 12, "%Y-%m-%d", date);
-
+	if(opt == 'd') { 
+		stamp = tstamp('d');
 		strcat(file, stamp);
-
-	} else if(argc == 2) {
-		strcat(file, fname);
+		free(stamp);
+		printf("In fn Post Assmt:\n%s \n", file);
+	} else {
+		strcat(file, filename);
+		printf("In fn Post Assmt:\n%s \n", file);
 	}
-	
-	write(file);			
+	return file;
 }
 
 int
 cli_note(void) {
 	char buf[1001], *stamp, *file;
 
-	file = getenv("HOME");
-	strcat(file, NOTES_DIR);
+	file = mkfile('d', NULL);
 
 	printf("Note: ");
 	scanf("%[^\n]", buf); 
-
-	stamp = tstamp('d');
-	strcat(file, stamp);
-	printf("Stamp: %s \n", stamp);
-	printf("File: %s \n", file);
-	free(stamp);
 
 	FILE *bp;
 	bp = fopen(file, "a+");
 	stamp = tstamp('t');
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", buf);
+	free(stamp);
 
 	fclose(bp);
 }
@@ -96,14 +83,9 @@ int
 main(int argc, char *argv[]) {
 
 	if(argc == 1) {
-		char *file, *stamp;
-	
-		file = getenv("HOME");
-		strcat(file, NOTES_DIR);
-		stamp = tstamp('d');
-		strcat(file, stamp);
+		char *file;
+		file = mkfile('d', NULL);	
 		write(file);			
-		free(stamp);
 	} else 
 		if(argc > 3) {
 		printf("Too many args. Give 0-1 filenames.\n");
@@ -111,10 +93,7 @@ main(int argc, char *argv[]) {
 	} else
 		if(argv[1][0] != '-') {
 			char *file;
-		
-			file = getenv("HOME");
-			strcat(file, NOTES_DIR);
-			strcat(file, argv[1]);
+			file = mkfile('t', argv[1]);
 			write(file);			
 	} else 
 		if(argv[1][0] == '-') {
@@ -130,7 +109,6 @@ main(int argc, char *argv[]) {
 					break;
 			}
 		}
-	 
 	
 	return 0;
 }
