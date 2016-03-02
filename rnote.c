@@ -19,7 +19,6 @@ write(char *file) {
         system(com); 
 }
 
-
 char
 *tstamp(char opt) {
 	char *stamp;
@@ -44,17 +43,14 @@ char
 	char *file, *stamp;
 	file = getenv("HOME");
 	strcat(file, NOTES_DIR);
-	printf("In fn Before Assmt:\n%s \n", file);
 	
 	if(opt == 'd') { 
 		stamp = tstamp('d');
 		strcat(file, stamp);
 		free(stamp);
-		printf("In fn Post Assmt:\n%s \n", file);
-	} else {
+	} else 
 		strcat(file, filename);
-		printf("In fn Post Assmt:\n%s \n", file);
-	}
+	
 	return file;
 }
 
@@ -70,26 +66,27 @@ cli_note(void) {
 	FILE *bp;
 	bp = fopen(file, "a+");
 	stamp = tstamp('t');
+
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", buf);
-	free(stamp);
 
+	free(stamp);
 	fclose(bp);
 }
-
-
 
 int
 main(int argc, char *argv[]) {
 
-	if(argc == 1) {
-		char *file;
-		file = mkfile('d', NULL);	
-		write(file);			
-	} else 
-		if(argc > 3) {
-		printf("Too many args. Give 0-1 filenames.\n");
+	if(argc >= 3) {
+		printf("ERROR: Too many args.\n");
+		printf("Give 0-1 filenames, ");
+		printf("or use '-m' for cli note.\n");
 		exit(0);	
+	} else 
+		if(argc == 1) {
+			char *file;
+			file = mkfile('d', NULL);	
+			write(file);			
 	} else
 		if(argv[1][0] != '-') {
 			char *file;
@@ -105,7 +102,7 @@ main(int argc, char *argv[]) {
 					break;
 				
 				default :
-					printf("Not an option. Try again.");
+					printf("Not an option. Try again.\n");
 					break;
 			}
 		}
