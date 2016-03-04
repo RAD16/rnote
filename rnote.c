@@ -7,27 +7,38 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <errno.h>
 
 /*Name of directory where notes are stored */
 #define NOTES_DIR "/notes/"
 #define TIME_SIZE 12
 
 void
+die(const char *message) {
+	if(errno) perror(message);
+	else printf("ERROR, %s\n");
+	exit(1);
+}
+
+
+void
 write(char *file) {
 	char com[50];
-	sprintf(com, "vis %s", file);
-        system(com); 
+	t = sprintf(com, "vic %s", file);
+        t = system(com); 
 }
 
 char
 *tstamp(char opt) {
+	struct tm *stmp;
 	char *stamp;
         time_t ts;
-	struct tm *stmp;
-	stamp = malloc(TIME_SIZE * sizeof(char));
 
 	time(&ts);
 	stmp = localtime(&ts);
+
+	stamp = malloc(TIME_SIZE * sizeof(char));
+	if(!stamp) die("Memory error.");
 
 	if(opt == 'd') {
 		strftime(stamp, TIME_SIZE, "%Y-%m-%d", stmp);
@@ -41,6 +52,7 @@ char
 char 
 *mkfile(char opt, char *filename) {
 	char *file, *stamp;
+
 	file = getenv("HOME");
 	strcat(file, NOTES_DIR);
 	
@@ -65,6 +77,8 @@ cli_note(void) {
 
 	FILE *bp;
 	bp = fopen(file, "a+");
+	if(!bp) die("Couldn't open file.");
+
 	stamp = tstamp('t');
 
 	fprintf(bp, "\n\n%s \n", stamp);
@@ -101,6 +115,17 @@ main(int argc, char *argv[]) {
 					cli_note();
 					break;
 				
+				case 'r':
+					printf("Ryan is awesome! Slap his hand!\n");
+					break;
+
+				case 'b':
+					printf("Boooooobs!\n");
+					break;
+
+				case 'p':
+					printf("Panis panis panis!\n");
+					break;
 				default :
 					printf("Not an option. Try again.\n");
 					break;
