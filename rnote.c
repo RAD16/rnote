@@ -34,15 +34,10 @@ die(const char *message) {
 void
 write(char *file, char *editor) {
 	char com[50];
-<<<<<<< HEAD
-	sprintf(com, "vis %s", file);
-        system(com); 
-=======
 	if(editor == NULL)
 		editor = "vis";
 	sprintf(com, "%s %s", editor, file);
         system(com);
->>>>>>> editors
 }
 
 char
