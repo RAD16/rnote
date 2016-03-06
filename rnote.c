@@ -6,6 +6,8 @@
 
 /* 
 *	TODO:
+		Alt Editor: arg parsing needs fixing. 
+	
 *	  Testing:
 *		- Need way to check if ~/notes exists, otherwise throw error. 
 *		currently, prog will have vis open a non-existant file path 
