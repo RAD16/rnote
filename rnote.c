@@ -24,8 +24,8 @@ die(const char *message) {
 void
 write(char *file) {
 	char com[50];
-	t = sprintf(com, "vic %s", file);
-        t = system(com); 
+	sprintf(com, "vic %s", file);
+        system(com); 
 }
 
 char
@@ -104,7 +104,7 @@ main(int argc, char *argv[]) {
 	} else
 		if(argv[1][0] != '-') {
 			char *file;
-			file = mkfile('t', argv[1]);
+			file = mkfile('n', argv[1]);
 			write(file);			
 	} else 
 		if(argv[1][0] == '-') {
