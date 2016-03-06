@@ -136,9 +136,12 @@ main(int argc, char *argv[]) {
 			write(file, NULL);			
 	} else {
 		printf("ERROR: Too many args.\n");
-		printf("Give 0-1 filenames, ");
-		printf("use '-m' for cli note.\n");
-		printf("or use '-e' and specify editor.\n");
+		printf("Usage:\n");
+		printf("\trnote [-m] <filename>\n");
+		printf("\trnote [-e] EDITOR <filename>\n");
+		printf("'-m' for cli note.\n");
+		printf("'-e' and specify editor.\n");
+		printf("No filename creates a note with date as title.\n");
 		exit(0);	
 		}
 	
