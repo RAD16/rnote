@@ -3,6 +3,17 @@
 * C program -- first arg becomes file name
 *	notes saved in $HOME/NOTES_DIR
 */
+
+/* 
+*	TODO:
+		Alt Editor: arg parsing needs fixing. 
+	
+*	  Testing:
+*		- Need way to check if ~/notes exists, otherwise throw error. 
+*		currently, prog will have vis open a non-existant file path 
+*		and complain that it cannot write to it, once note is written.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -20,12 +31,18 @@ die(const char *message) {
 	exit(1);
 }
 
-
 void
-write(char *file) {
+write(char *file, char *editor) {
 	char com[50];
+<<<<<<< HEAD
 	sprintf(com, "vis %s", file);
         system(com); 
+=======
+	if(editor == NULL)
+		editor = "vis";
+	sprintf(com, "%s %s", editor, file);
+        system(com);
+>>>>>>> editors
 }
 
 char
@@ -91,45 +108,46 @@ cli_note(void) {
 int
 main(int argc, char *argv[]) {
 
-	if(argc >= 3) {
-		printf("ERROR: Too many args.\n");
-		printf("Give 0-1 filenames, ");
-		printf("or use '-m' for cli note.\n");
-		exit(0);	
-	} else 
-		if(argc == 1) {
-			char *file;
-			file = mkfile('d', NULL);	
-			write(file);			
-	} else
-		if(argv[1][0] != '-') {
-			char *file;
+	char *file;
+	if(argc == 1) {
+		file = mkfile('d', NULL);	
+		write(file, NULL);			
+	} else if(argc > 1 && argc < 5 && argv[1][0] == '-') {
+		char opt;
+		opt = argv[1][1];
+		switch(opt) {
+			
+			/* Specify alternate editor */
+			/* Needs arg parse tweaking */
+			case 'e' :
+				if(argv[3]) {
+					file = mkfile('n', argv[3]);	
+				} else {
+					file = mkfile('d', NULL);	
+				} 
+				write(file, argv[2]);			
+				break;
+
+			case 'm':
+				cli_note();
+				break;
+			
+			default :
+				printf("Not an option. Try again.\n");
+				break;
+		}
+	} else if(argv[1][0] != '-') {
 			file = mkfile('n', argv[1]);
-			write(file);			
-	} else 
-		if(argv[1][0] == '-') {
-			char opt;
-			opt = argv[1][1];
-			switch(opt) {
-				case 'm':
-					cli_note();
-					break;
-				
-				case 'r':
-					printf("Ryan is awesome! Slap his hand!\n");
-					break;
-
-				case 'b':
-					printf("Boooooobs!\n");
-					break;
-
-				case 'p':
-					printf("Panis panis panis!\n");
-					break;
-				default :
-					printf("Not an option. Try again.\n");
-					break;
-			}
+			write(file, NULL);			
+	} else {
+		printf("ERROR: Too many args.\n");
+		printf("Usage:\n");
+		printf("\trnote [-m] <filename>\n");
+		printf("\trnote [-e] EDITOR <filename>\n");
+		printf("'-m' for cli note.\n");
+		printf("'-e' and specify editor.\n");
+		printf("No filename creates a note with date as title.\n");
+		exit(0);	
 		}
 	
 	return 0;
