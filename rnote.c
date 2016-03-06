@@ -3,6 +3,15 @@
 * C program -- first arg becomes file name
 *	notes saved in $HOME/NOTES_DIR
 */
+
+/* 
+*	TODO:
+*	  Testing:
+*		- Need way to check if ~/notes exists, otherwise throw error. 
+*		currently, prog will have vis open a non-existant file path 
+*		and complain that it cannot write to it, once note is written.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -20,12 +29,13 @@ die(const char *message) {
 	exit(1);
 }
 
-
 void
-write(char *file) {
+write(char *file, char *editor) {
 	char com[50];
-	sprintf(com, "vic %s", file);
-        system(com); 
+	if(editor == NULL)
+		editor = "vis";
+	sprintf(com, "%s %s", editor, file);
+        system(com);
 }
 
 char
@@ -91,28 +101,36 @@ cli_note(void) {
 int
 main(int argc, char *argv[]) {
 
-	if(argc >= 3) {
+	if(argc >= 4) {
 		printf("ERROR: Too many args.\n");
 		printf("Give 0-1 filenames, ");
-		printf("or use '-m' for cli note.\n");
+		printf("use '-m' for cli note.\n");
+		printf("or use '-e' and specify editor.\n");
 		exit(0);	
 	} else 
 		if(argc == 1) {
 			char *file;
 			file = mkfile('d', NULL);	
-			write(file);			
+			write(file, NULL);			
 	} else
 		if(argv[1][0] != '-') {
 			char *file;
 			file = mkfile('n', argv[1]);
-			write(file);			
+			write(file, NULL);			
 	} else 
 		if(argv[1][0] == '-') {
-			char opt;
+			char opt, *file;
 			opt = argv[1][1];
 			switch(opt) {
 				case 'm':
 					cli_note();
+					break;
+				
+				/* Specify alternate editor */
+				/* Needs arg parse tweaking */
+				case 'e' :
+					file = mkfile('d', NULL);	
+					write(file, argv[2]);			
 					break;
 				
 				case 'r':
