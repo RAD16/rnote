@@ -24,7 +24,7 @@ die(const char *message) {
 void
 write(char *file) {
 	char com[50];
-	sprintf(com, "vic %s", file);
+	sprintf(com, "vis %s", file);
         system(com); 
 }
 
