@@ -103,53 +103,43 @@ cli_note(void) {
 int
 main(int argc, char *argv[]) {
 
-	if(argc >= 4) {
+	char *file;
+	if(argc == 1) {
+		file = mkfile('d', NULL);	
+		write(file, NULL);			
+	} else if(argc > 1 && argc < 5 && argv[1][0] == '-') {
+		char opt;
+		opt = argv[1][1];
+		switch(opt) {
+			
+			/* Specify alternate editor */
+			/* Needs arg parse tweaking */
+			case 'e' :
+				if(argv[3]) {
+					file = mkfile('n', argv[3]);	
+				} else {
+					file = mkfile('d', NULL);	
+				} 
+				write(file, argv[2]);			
+				break;
+
+			case 'm':
+				cli_note();
+				break;
+			
+			default :
+				printf("Not an option. Try again.\n");
+				break;
+		}
+	} else if(argv[1][0] != '-') {
+			file = mkfile('n', argv[1]);
+			write(file, NULL);			
+	} else {
 		printf("ERROR: Too many args.\n");
 		printf("Give 0-1 filenames, ");
 		printf("use '-m' for cli note.\n");
 		printf("or use '-e' and specify editor.\n");
 		exit(0);	
-	} else 
-		if(argc == 1) {
-			char *file;
-			file = mkfile('d', NULL);	
-			write(file, NULL);			
-	} else
-		if(argv[1][0] != '-') {
-			char *file;
-			file = mkfile('n', argv[1]);
-			write(file, NULL);			
-	} else 
-		if(argv[1][0] == '-') {
-			char opt, *file;
-			opt = argv[1][1];
-			switch(opt) {
-				case 'm':
-					cli_note();
-					break;
-				
-				/* Specify alternate editor */
-				/* Needs arg parse tweaking */
-				case 'e' :
-					file = mkfile('d', NULL);	
-					write(file, argv[2]);			
-					break;
-				
-				case 'r':
-					printf("Ryan is awesome! Slap his hand!\n");
-					break;
-
-				case 'b':
-					printf("Boooooobs!\n");
-					break;
-
-				case 'p':
-					printf("Panis panis panis!\n");
-					break;
-				default :
-					printf("Not an option. Try again.\n");
-					break;
-			}
 		}
 	
 	return 0;
