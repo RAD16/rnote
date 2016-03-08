@@ -6,7 +6,6 @@
 
 /* 
 *	TODO:
-		Alt Editor: arg parsing needs fixing. 
 	
 *	  Testing:
 *		- Need way to check if ~/notes exists, otherwise throw error. 
@@ -20,15 +19,21 @@
 #include <string.h>
 #include <errno.h>
 
-/*Name of directory where notes are stored */
-#define NOTES_DIR "/notes/"
-#define EDITOR "vis"
 #define TIME_SIZE 12
+
+char *config[] = {
+/*
+*	Configuration: Notes dir is where notes are stored 
+*	and is within the /home/ dir, so "/notes/" will be 
+*	expanded to "/home/username/notes/". 
+*
+*	Notes dir	Editor					
+*/	"/notes/",	"vis"	};
 
 void
 die(const char *message) {
 	if(errno) perror(message);
-	else printf("ERROR, %s\n");
+	else printf("ERROR: %s\n", message);
 	exit(1);
 }
 
@@ -37,7 +42,7 @@ write(char *file, char *editor) {
 	char com[50];
 	if(editor == NULL)
 		/* Default Editor */
-		editor = EDITOR;
+		editor = config[1];
 	sprintf(com, "%s %s", editor, file);
         system(com);
 }
@@ -68,7 +73,7 @@ char
 	char *file, *stamp;
 
 	file = getenv("HOME");
-	strcat(file, NOTES_DIR);
+	strcat(file, config[0]);
 	
 	if(opt == 'd') { 
 		stamp = tstamp('d');
@@ -121,6 +126,8 @@ main(int argc, char *argv[]) {
 			
 			/* Specify alternate editor */
 			case 'e' :
+				if(!argv[2]) 
+					die("Please specify and editor.");
 				if(argv[3]) {
 					file = mkfile('n', argv[3]);	
 				} else {
@@ -148,6 +155,5 @@ main(int argc, char *argv[]) {
 		printf("Not specifying a filename creates a note with date as title.\n");
 		exit(0);	
 		}
-	
 	return 0;
 }
