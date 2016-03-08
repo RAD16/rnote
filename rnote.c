@@ -35,6 +35,7 @@ void
 write(char *file, char *editor) {
 	char com[50];
 	if(editor == NULL)
+		/* Default Editor */
 		editor = "vis";
 	sprintf(com, "%s %s", editor, file);
         system(com);
@@ -107,13 +108,17 @@ main(int argc, char *argv[]) {
 	if(argc == 1) {
 		file = mkfile('d', NULL);	
 		write(file, NULL);			
+
+	} else if(argv[1][0] != '-') {
+			file = mkfile('n', argv[1]);
+			write(file, NULL);			
+
 	} else if(argc > 1 && argc < 5 && argv[1][0] == '-') {
 		char opt;
 		opt = argv[1][1];
 		switch(opt) {
 			
 			/* Specify alternate editor */
-			/* Needs arg parse tweaking */
 			case 'e' :
 				if(argv[3]) {
 					file = mkfile('n', argv[3]);	
@@ -131,9 +136,6 @@ main(int argc, char *argv[]) {
 				printf("Not an option. Try again.\n");
 				break;
 		}
-	} else if(argv[1][0] != '-') {
-			file = mkfile('n', argv[1]);
-			write(file, NULL);			
 	} else {
 		printf("ERROR: Too many args.\n");
 		printf("Usage:\n");
