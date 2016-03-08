@@ -22,6 +22,7 @@
 
 /*Name of directory where notes are stored */
 #define NOTES_DIR "/notes/"
+#define EDITOR "vis"
 #define TIME_SIZE 12
 
 void
@@ -36,7 +37,7 @@ write(char *file, char *editor) {
 	char com[50];
 	if(editor == NULL)
 		/* Default Editor */
-		editor = "vis";
+		editor = EDITOR;
 	sprintf(com, "%s %s", editor, file);
         system(com);
 }
@@ -109,9 +110,9 @@ main(int argc, char *argv[]) {
 		file = mkfile('d', NULL);	
 		write(file, NULL);			
 
-	} else if(argv[1][0] != '-') {
-			file = mkfile('n', argv[1]);
-			write(file, NULL);			
+	} else if(argc == 2 && argv[1][0] != '-') {
+		file = mkfile('n', argv[1]);
+		write(file, NULL);			
 
 	} else if(argc > 1 && argc < 5 && argv[1][0] == '-') {
 		char opt;
@@ -128,6 +129,7 @@ main(int argc, char *argv[]) {
 				write(file, argv[2]);			
 				break;
 
+			/* Single line note appended to dated file */
 			case 'm':
 				cli_note();
 				break;
@@ -137,13 +139,13 @@ main(int argc, char *argv[]) {
 				break;
 		}
 	} else {
-		printf("ERROR: Too many args.\n");
+		printf("ERROR: Too many arguments.\n");
 		printf("Usage:\n");
 		printf("\trnote [-m] <filename>\n");
 		printf("\trnote [-e] EDITOR <filename>\n");
 		printf("'-m' for cli note.\n");
 		printf("'-e' and specify editor.\n");
-		printf("No filename creates a note with date as title.\n");
+		printf("Not specifying a filename creates a note with date as title.\n");
 		exit(0);	
 		}
 	
