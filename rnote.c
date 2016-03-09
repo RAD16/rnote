@@ -41,7 +41,6 @@ void
 write(char *file, char *editor) {
 	char com[50];
 	if(editor == NULL)
-		/* Default Editor */
 		editor = config[1];
 	sprintf(com, "%s %s", editor, file);
         system(com);
@@ -85,7 +84,7 @@ char
 	return file;
 }
 
-int
+void
 cli_note(void) {
 	char buf[1001], *stamp, *file;
 
