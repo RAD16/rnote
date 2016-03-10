@@ -127,7 +127,7 @@ main(int argc, char *argv[]) {
 				printf("Not an option. Try again.\n");
 				break;
 		}
-	} else die("Too many arguments.")
+	} else die("Too many arguments.");
 
 	return 0;
 }
