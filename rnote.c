@@ -1,12 +1,7 @@
 /*
 * Open editor to write a note.
-* C program -- first arg becomes file name
-*	notes saved in $HOME/NOTES_DIR
 */
-
 /* 
-*	TODO:
-	
 *	  Testing:
 *		- Need way to check if ~/notes exists, otherwise throw error. 
 *		currently, prog will have vis open a non-existant file path 
@@ -17,36 +12,23 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include <errno.h>
 #include <unistd.h>
 
-#define TIME_SIZE 12
-
-char *config[] = {
-/*
-*	Configuration: Notes dir is where notes are stored 
-*	and is within the /home/ dir, so "/notes/" will be 
-*	expanded to "/home/username/notes/". 
-*
-*	Notes dir	Editor					
-*/	"/notes/",	"vis"	};
+#define NOTES_DIR "/notes/"
+#define EDITOR "vis"
 
 void
 die(const char *message) {
-	if(errno) perror(message);
-	else printf("ERROR: %s\n", message);
+	printf("ERROR: %s\n", message);
 	exit(1);
 }
 
 void
 write_note(char *note, char *editor) {
 	char com[50];
-	printf("Notedir Stage 1: %s\n", note);
-	printf("Notedir Stage 2: %s\n", note);
-	printf("File in write_note: %s\n", note);
 	
 	if(editor == NULL)
-		editor = config[1];
+		editor = EDITOR;
 	sprintf(com, "%s %s", editor, note);
         system(com);
 }
@@ -60,13 +42,13 @@ char
 	time(&ts);
 	stmp = localtime(&ts);
 
-	stamp = malloc(TIME_SIZE * sizeof(char));
+	stamp = malloc(12 * sizeof(char));
 	if(!stamp) die("Memory error.");
 
 	if(opt == 'd') {
-		strftime(stamp, TIME_SIZE, "%Y-%m-%d", stmp);
+		strftime(stamp, 12, "%Y-%m-%d", stmp);
 	} else {
-		strftime(stamp, TIME_SIZE, "%T", stmp);
+		strftime(stamp, 12, "%T", stmp);
 	}
 
 	return stamp;
@@ -77,7 +59,7 @@ char
 	char *file, *stamp;
 
 	file = getenv("HOME");
-	strcat(file, config[0]);
+	strcat(file, NOTES_DIR);
 	chdir(file);
 	
 	if(opt == 'd') { 
@@ -87,7 +69,6 @@ char
 	} else 
 		strcat(file, filename);
 	
-	printf("File in mkfile: %s\n", file);
 	return file;
 }
 
@@ -115,8 +96,8 @@ cli_note(void) {
 
 int
 main(int argc, char *argv[]) {
-
 	char *file;
+
 	if(argc == 1) {
 		file = mkfile('d', NULL);	
 		write_note(file, NULL);			
@@ -129,8 +110,6 @@ main(int argc, char *argv[]) {
 		char opt;
 		opt = argv[1][1];
 		switch(opt) {
-			
-			/* Specify alternate editor */
 			case 'e' :
 				if(!argv[2]) 
 					die("Please specify and editor.");
@@ -141,25 +120,14 @@ main(int argc, char *argv[]) {
 				} 
 				write_note(file, argv[2]);			
 				break;
-
-			/* Single line note appended to dated file */
 			case 'm':
 				cli_note();
 				break;
-			
 			default :
 				printf("Not an option. Try again.\n");
 				break;
 		}
-	} else {
-		printf("ERROR: Too many arguments.\n");
-		printf("Usage:\n");
-		printf("\trnote [-m] <filename>\n");
-		printf("\trnote [-e] EDITOR <filename>\n");
-		printf("'-m' for cli note.\n");
-		printf("'-e' and specify editor.\n");
-		printf("Not specifying a filename creates a note with date as title.\n");
-		exit(0);	
-		}
+	} else die("Too many arguments.")
+
 	return 0;
 }
