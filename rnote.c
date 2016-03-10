@@ -18,6 +18,7 @@
 #include <time.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #define TIME_SIZE 12
 
@@ -38,11 +39,15 @@ die(const char *message) {
 }
 
 void
-write(char *file, char *editor) {
+write_note(char *note, char *editor) {
 	char com[50];
+	printf("Notedir Stage 1: %s\n", note);
+	printf("Notedir Stage 2: %s\n", note);
+	printf("File in write_note: %s\n", note);
+	
 	if(editor == NULL)
 		editor = config[1];
-	sprintf(com, "%s %s", editor, file);
+	sprintf(com, "%s %s", editor, note);
         system(com);
 }
 
@@ -73,6 +78,7 @@ char
 
 	file = getenv("HOME");
 	strcat(file, config[0]);
+	chdir(file);
 	
 	if(opt == 'd') { 
 		stamp = tstamp('d');
@@ -81,6 +87,7 @@ char
 	} else 
 		strcat(file, filename);
 	
+	printf("File in mkfile: %s\n", file);
 	return file;
 }
 
@@ -112,11 +119,11 @@ main(int argc, char *argv[]) {
 	char *file;
 	if(argc == 1) {
 		file = mkfile('d', NULL);	
-		write(file, NULL);			
+		write_note(file, NULL);			
 
 	} else if(argc == 2 && argv[1][0] != '-') {
 		file = mkfile('n', argv[1]);
-		write(file, NULL);			
+		write_note(file, NULL);			
 
 	} else if(argc > 1 && argc < 5 && argv[1][0] == '-') {
 		char opt;
@@ -132,7 +139,7 @@ main(int argc, char *argv[]) {
 				} else {
 					file = mkfile('d', NULL);	
 				} 
-				write(file, argv[2]);			
+				write_note(file, argv[2]);			
 				break;
 
 			/* Single line note appended to dated file */
