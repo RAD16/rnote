@@ -2,6 +2,10 @@
 * Open editor to write a note.
 */
 /* 
+*	TODO:
+*		- Feature: passing argv[1] searches NOTES_DIR for pre-existing
+*		file of name argv[1]. If none is found, create new file of that name.
+*
 *	  Testing:
 *		- Need way to check if ~/notes exists, otherwise throw error. 
 *		currently, prog will have vis open a non-existant file path 
