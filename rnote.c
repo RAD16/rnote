@@ -50,9 +50,8 @@ char
 
 	if(opt == 'd') {
 		strftime(stamp, 12, "%Y-%m-%d", stmp);
-	} else {
+	} else 
 		strftime(stamp, 12, "%T", stmp);
-	}
 
 	return stamp;
 }
@@ -60,17 +59,17 @@ char
 char 
 *mkfile(char opt, char *filename) {
 	char *file, *stamp;
-	DIR *dp;
-
 
 	file = getenv("HOME");
+	stamp = tstamp('d');
+
 	strcat(file, NOTES_DIR);
-	dp = opendir(file);
-	if(!dp) die("Could not open ~/notes.");
+
+	if(!opendir(file)) 
+		die("Could not open ~/notes directory.");
 	chdir(file);
 	
 	if(opt == 'd') { 
-		stamp = tstamp('d');
 		strcat(file, stamp);
 		free(stamp);
 	} else 
@@ -81,18 +80,16 @@ char
 
 void
 cli_note(void) {
-	char buf[1001], *stamp, *file;
+	FILE *bp;
+	char *file, *stamp, buf[1001];
 
 	file = mkfile('d', NULL);
-
-	printf("Note: ");
-	scanf("%[^\n]", buf); 
-
-	FILE *bp;
+	stamp = tstamp('t');
 	bp = fopen(file, "a+");
 	if(!bp) die("Couldn't open file.");
 
-	stamp = tstamp('t');
+	printf("Note: ");
+	scanf("%[^\n]", buf); 
 
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", buf);
