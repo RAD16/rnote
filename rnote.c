@@ -1,13 +1,8 @@
 /*
 * Open editor to write a note.
 */
-/* 
-*	TODO:
-*
-*	  Testing:
-*		- Need way to check if ~/notes exists, otherwise throw error. 
-*		currently, prog will have vis open a non-existant file path 
-*		and complain that it cannot write to it, once note is written.
+
+/*	TODO:
 */
 
 #include <stdio.h>
