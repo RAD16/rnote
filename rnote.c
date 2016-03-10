@@ -3,8 +3,6 @@
 */
 /* 
 *	TODO:
-*		- Feature: passing argv[1] searches NOTES_DIR for pre-existing
-*		file of name argv[1]. If none is found, create new file of that name.
 *
 *	  Testing:
 *		- Need way to check if ~/notes exists, otherwise throw error. 
@@ -17,6 +15,7 @@
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #define NOTES_DIR "/notes/"
 #define EDITOR "vis"
@@ -61,9 +60,13 @@ char
 char 
 *mkfile(char opt, char *filename) {
 	char *file, *stamp;
+	DIR *dp;
+
 
 	file = getenv("HOME");
 	strcat(file, NOTES_DIR);
+	dp = opendir(file);
+	if(!dp) die("Could not open ~/notes.");
 	chdir(file);
 	
 	if(opt == 'd') { 
