@@ -1,7 +1,6 @@
 # Musl-libc Makefile
 
-CC=musl-gcc
-CFLAGS=-Wall -g -static -Os
+CFLAGS=-Wall -static -g -Os
 
 all: rnote
 
@@ -13,3 +12,5 @@ clean:
 
 uninstall:
 	rm -f /usr/local/bin/note
+
+CC= musl-gcc
