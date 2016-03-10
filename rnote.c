@@ -12,8 +12,8 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#define NOTES_DIR "/notes/"
-#define EDITOR "vis"
+#define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
+#define EDITOR "vis"		/* Text editor of choice */
 
 void
 die(const char *message) {
