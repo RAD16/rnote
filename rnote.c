@@ -25,8 +25,6 @@ void
 write_note(char *note, char *editor) {
 	char com[50];
 	
-	if(editor == NULL)
-		editor = EDITOR;
 	sprintf(com, "%s %s", editor, note);
         system(com);
 }
@@ -52,7 +50,7 @@ char
 }
 
 char 
-*mkfile(char opt, char *filename) {
+*mkfile(char *filename) {
 	char *file, *stamp;
 
 	file = getenv("HOME");
@@ -64,11 +62,11 @@ char
 		die("Could not open ~/notes directory.");
 	chdir(file);
 	
-	if(opt == 'd') { 
+	if(filename) { 
+		strcat(file, filename);
+	} else 
 		strcat(file, stamp);
 		free(stamp);
-	} else 
-		strcat(file, filename);
 	
 	return file;
 }
@@ -78,7 +76,7 @@ cli_note(void) {
 	FILE *bp;
 	char *file, *stamp, buf[1001];
 
-	file = mkfile('d', NULL);
+	file = mkfile(NULL);
 	stamp = tstamp('t');
 	bp = fopen(file, "a+");
 	if(!bp) die("Couldn't open file.");
@@ -98,12 +96,12 @@ main(int argc, char *argv[]) {
 	char *file;
 
 	if(argc == 1) {
-		file = mkfile('d', NULL);	
-		write_note(file, NULL);			
+		file = mkfile(NULL);	
+		write_note(file, EDITOR);			
 
 	} else if(argc == 2 && argv[1][0] != '-') {
-		file = mkfile('n', argv[1]);
-		write_note(file, NULL);			
+		file = mkfile(argv[1]);
+		write_note(file, EDITOR);			
 
 	} else if(argc < 5 && argv[1][0] == '-') {
 		char opt;
@@ -113,9 +111,9 @@ main(int argc, char *argv[]) {
 				if(!argv[2]) 
 					die("Please specify and editor.");
 				if(argv[3]) {
-					file = mkfile('n', argv[3]);	
+					file = mkfile(argv[3]);	
 				} else {
-					file = mkfile('d', NULL);	
+					file = mkfile(NULL);	
 				} 
 				write_note(file, argv[2]);			
 				break;
