@@ -46,13 +46,13 @@ ls_notes() {
 	dp = opendir(file);
 	if(!dp) die("Couldn't open ~/notes dir.");
 
-	for( ; (dirp = readdir(dp)) != NULL; ) {
+	while((dirp = readdir(dp)) != NULL) {
 		if(dirp->d_name[0] != '.')
 			printf("%s\n", dirp->d_name);
 		else continue;
 	}
 	printf("\n");
-	closedir(dirp);
+	closedir(dp);
 }
 
 char
