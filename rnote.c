@@ -35,7 +35,7 @@ write_note(char *note, char *editor) {
 *  the specified format.
 */
 char
-*tstamp(char opt) {
+*tstamp(const char *opt) {
 	struct tm *stmp;
 	char *stamp;
         time_t ts;
@@ -43,13 +43,11 @@ char
 	time(&ts);
 	stmp = localtime(&ts);
 
-	stamp = malloc(12 * sizeof(char));
+	stamp = malloc(21 * sizeof(char));
 	if(!stamp) die("Memory error.");
 
-	if(opt == 'd') {
-		strftime(stamp, 12, "%Y-%m-%d", stmp);
-	} else 
-		strftime(stamp, 12, "%T", stmp);
+	strftime(stamp, 21, opt, stmp);
+	printf("stamp in tstamp: %s\n", stamp);
 
 	return stamp;
 }
@@ -59,7 +57,8 @@ char
 	char *file, *stamp;
 
 	file = getenv("HOME");
-	stamp = tstamp('d');
+	stamp = tstamp("%Y-%m-%d");
+	printf("stamp in mkfile: %s\n", stamp);
 
 	strcat(file, NOTES_DIR);
 
@@ -82,7 +81,7 @@ cli_note(void) {
 	char *file, *stamp, buf[1001];
 
 	file = mkfile(NULL);
-	stamp = tstamp('t');
+	stamp = tstamp("%T");
 	bp = fopen(file, "a+");
 	if(!bp) die("Couldn't open file.");
 
