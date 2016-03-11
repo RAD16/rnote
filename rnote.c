@@ -120,6 +120,7 @@ main(int argc, char *argv[]) {
 				write_note(file, argv[2]);			
 				break;
 			case 'm':
+				if(argc > 2) die("Option 'm' takes no arguments.");
 				cli_note();
 				break;
 			default :
