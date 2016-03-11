@@ -29,6 +29,11 @@ write_note(char *note, char *editor) {
         system(com);
 }
 
+/* Attempting to alter tstamp() so that it accepts
+*  only a format string, e.g. %Y-%m-%d. Provide flexibility,
+*  remove arbitrary if-else checking. Just print the time to
+*  the specified format.
+*/
 char
 *tstamp(char opt) {
 	struct tm *stmp;
