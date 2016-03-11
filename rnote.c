@@ -98,11 +98,9 @@ main(int argc, char *argv[]) {
 	if(argc == 1) {
 		file = mkfile(NULL);	
 		write_note(file, EDITOR);			
-
 	} else if(argc == 2 && argv[1][0] != '-') {
 		file = mkfile(argv[1]);
 		write_note(file, EDITOR);			
-
 	} else if(argc < 5 && argv[1][0] == '-') {
 		char opt;
 		opt = argv[1][1];
