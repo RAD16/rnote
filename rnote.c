@@ -47,7 +47,6 @@ char
 	if(!stamp) die("Memory error.");
 
 	strftime(stamp, 21, opt, stmp);
-	printf("stamp in tstamp: %s\n", stamp);
 
 	return stamp;
 }
@@ -58,7 +57,6 @@ char
 
 	file = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
-	printf("stamp in mkfile: %s\n", stamp);
 
 	strcat(file, NOTES_DIR);
 
