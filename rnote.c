@@ -36,18 +36,20 @@ write_note(char *note, char *editor) {
 
 void
 ls_notes() {
-	DIR *dirp;
-	struct dirent *dp;
+	DIR *dp;
+	struct dirent *dirp;
 	char *file;
 
 	file = getenv("HOME");
 	strcat(file, NOTES_DIR);
 	
-	dirp = opendir(file);
-	if(!dirp) die("Couldn't open ~/notes dir.");
+	dp = opendir(file);
+	if(!dp) die("Couldn't open ~/notes dir.");
 
-	for( ; (dp = readdir(dirp)) != NULL; ) {
-		printf("%s\t", dp->d_name);
+	for( ; (dirp = readdir(dp)) != NULL; ) {
+		if(dirp->d_name[0] != '.')
+			printf("%s\n", dirp->d_name);
+		else continue;
 	}
 	printf("\n");
 	closedir(dirp);
