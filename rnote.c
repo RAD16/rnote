@@ -105,7 +105,7 @@ main(int argc, char *argv[]) {
 		file = mkfile('n', argv[1]);
 		write_note(file, NULL);			
 
-	} else if(argc > 1 && argc < 5 && argv[1][0] == '-') {
+	} else if(argc < 5 && argv[1][0] == '-') {
 		char opt;
 		opt = argv[1][1];
 		switch(opt) {
