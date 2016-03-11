@@ -1,6 +1,6 @@
 # Musl-libc Makefile
 
-CFLAGS=-Wall -static -g -Os
+CFLAGS=-Wall -static -g -Os -FORTIFY_SOURCE
 
 all: rnote
 
