@@ -29,6 +29,21 @@ write_note(char *note, char *editor) {
         system(com);
 }
 
+/*
+*  Goal: write function to list contents of ~/notes to stdout
+*/
+
+void
+ls_notes() {
+	char *file;
+	file = getenv("HOME");
+	strcat(file, NOTES_DIR);
+
+	if(!opendir(file)) die("Could not open ~/notes directory.");
+	chdir(file);
+	system("ls");
+}
+
 char
 *tstamp(const char *opt) {
 	struct tm *stmp;
@@ -114,6 +129,9 @@ main(int argc, char *argv[]) {
 			case 'm':
 				if(argv[2]) die("Option 'm' takes no arguments.");
 				cli_note();
+				break;
+			case 'l':
+				ls_notes();
 				break;
 			default :
 				printf("Not an option. Try again.\n");
