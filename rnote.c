@@ -55,8 +55,7 @@ char
 
 	strcat(file, NOTES_DIR);
 
-	if(!opendir(file)) 
-		die("Could not open ~/notes directory.");
+	if(!opendir(file)) die("Could not open ~/notes directory.");
 	chdir(file);
 	
 	if(filename) { 
