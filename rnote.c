@@ -36,12 +36,12 @@ write_note(char *note, char *editor) {
 
 void
 ls_notes() {
-	char *file; 
-	struct dirent **namelist;
 	int i, n;
+	char *file;
+	struct dirent **namelist;
 	
 	file = getenv("HOME");
-	strcat(file, NOTES_DIR);
+	strncat(file, NOTES_DIR, 8);
 	
 	n = scandir(file, &namelist, 0, alphasort);
 	if(n < 0) die("Couldn't open ~/notes directory.");
@@ -78,15 +78,19 @@ char
 	file = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
 
-	strcat(file, NOTES_DIR);
+	printf("Strlen(NOTES_DIR) = %d\n", strlen(NOTES_DIR));
 
+	printf("Strlen(stamp) = %d\n", strlen(stamp));
+	printf("Size stamp: %d\n", sizeof(sizeof(char) * strlen(stamp)));
+	strncat(file, NOTES_DIR, strlen(NOTES_DIR));
+	printf("FIle: %s\n", file);
 	if(!opendir(file)) die("Could not open ~/notes directory.");
 	chdir(file);
 	
 	if(filename) { 
-		strcat(file, filename);
+		strncat(file, filename, strlen(filename));
 	} else 
-		strcat(file, stamp);
+		strncat(file, stamp, strlen(stamp));
 		free(stamp);
 	
 	return file;
