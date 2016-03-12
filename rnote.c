@@ -31,28 +31,27 @@ write_note(char *note, char *editor) {
  
 /*
 *  Goal: write function to list contents of ~/notes to stdout
-*  	>> Implement in C
+*  	>> alphabetize
 */
 
 void
 ls_notes() {
-	DIR *dp;
-	struct dirent *dirp;
-	char *file;
-
+	char *file; 
+	struct dirent **namelist;
+	int i, n;
+	
 	file = getenv("HOME");
 	strcat(file, NOTES_DIR);
 	
-	dp = opendir(file);
-	if(!dp) die("Couldn't open ~/notes dir.");
-
-	while((dirp = readdir(dp)) != NULL) {
-		if(dirp->d_name[0] != '.')
-			printf("%s\n", dirp->d_name);
-		else continue;
+	n = scandir(file, &namelist, 0, alphasort);
+	if(n < 0) die("Couldn't open ~/notes directory.");
+	 else {
+		for(i = 0; i < n; i++) {
+			printf("%s\n", namelist[i]->d_name);
+			free(namelist[i]);
+		}
+	free(namelist);
 	}
-	printf("\n");
-	closedir(dp);
 }
 
 char
