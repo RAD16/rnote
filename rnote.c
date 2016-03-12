@@ -59,10 +59,8 @@ char
 	struct tm *stmp;
 	char *stamp;
         time_t ts;
-
 	time(&ts);
 	stmp = localtime(&ts);
-
 	stamp = malloc(21 * sizeof(char));
 	if(!stamp) die("Memory error.");
 
@@ -78,12 +76,7 @@ char
 	file = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
 
-	printf("Strlen(NOTES_DIR) = %d\n", strlen(NOTES_DIR));
-
-	printf("Strlen(stamp) = %d\n", strlen(stamp));
-	printf("Size stamp: %d\n", sizeof(sizeof(char) * strlen(stamp)));
 	strncat(file, NOTES_DIR, strlen(NOTES_DIR));
-	printf("FIle: %s\n", file);
 	if(!opendir(file)) die("Could not open ~/notes directory.");
 	chdir(file);
 	
