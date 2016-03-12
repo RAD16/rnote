@@ -28,20 +28,29 @@ write_note(char *note, char *editor) {
 	sprintf(com, "%s %s", editor, note);
         system(com);
 }
-
+ 
 /*
 *  Goal: write function to list contents of ~/notes to stdout
+*  	>> Implement in C
 */
 
 void
 ls_notes() {
+	DIR *dirp;
+	struct dirent *dp;
 	char *file;
+
 	file = getenv("HOME");
 	strcat(file, NOTES_DIR);
+	
+	dirp = opendir(file);
+	if(!dirp) die("Couldn't open ~/notes dir.");
 
-	if(!opendir(file)) die("Could not open ~/notes directory.");
-	chdir(file);
-	system("ls");
+	for( ; (dp = readdir(dirp)) != NULL; ) {
+		printf("%s\t", dp->d_name);
+	}
+	printf("\n");
+	closedir(dirp);
 }
 
 char
