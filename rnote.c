@@ -53,11 +53,13 @@ list_notes() {
 		die("Couldn't open ~/notes directory.");
 	 else {
 		for(i = 0; i < n; i++) {
-			printf("%s\n", namelist[i]->d_name);
-			free(namelist[i]);
+			if(namelist[i]->d_name[0] != '.') {
+				printf("%s\n", namelist[i]->d_name);
+				free(namelist[i]);
+			} else 	continue;
 		}
-	free(namelist);
 	}
+	free(namelist);
 }
 
 char
