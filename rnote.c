@@ -20,6 +20,16 @@ die(const char *message) {
 	exit(1);
 }
 
+char
+*r_strncat(char *dest, char *src) {
+	if(strlen(src) + 1 > sizeof(dest) - strlen(dest))
+		die("File would be truncated.");
+	else
+		strncat(dest, src, sizeof(dest) - strlen(dest) - 1);
+
+	return dest;
+}
+
 void
 write_note(char *note, char *editor) {
 	char com[50];
@@ -35,14 +45,9 @@ ls_notes() {
 	struct dirent **namelist;
 	
 	file = getenv("HOME");
-	
-	if(strlen(NOTES_DIR) + 1 > sizeof(file) - strlen(file))
-		die("File would be truncated.");
-	else
-		strncat(file, NOTES_DIR, sizeof(file) - strlen(file) - 1);
+	r_strncat(file, NOTES_DIR);
 	
 	n = scandir(file, &namelist, 0, alphasort);
-
 	if(n < 0) 
 		die("Couldn't open ~/notes directory.");
 	 else {
@@ -75,22 +80,15 @@ char
 
 	file = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
-
-	if(strlen(NOTES_DIR) + 1 > sizeof(file) - strlen(file))
-		die("File would be truncated.");
-	else
-		strncat(file, NOTES_DIR, sizeof(file) - strlen(file) - 1);
+	r_strncat(file, NOTES_DIR);
 	
 	if(!opendir(file)) die("Could not open ~/notes directory.");
 	chdir(file);
-	
+
 	if(filename) { 
-		if(strlen(filename) + 1 > sizeof(file) - strlen(file))
-			die("File would be truncated.");
-		else
-			strncat(file, filename, sizeof(file) - strlen(file) - 1);
+		r_strncat(file, stamp);
 	} else 
-		strncat(file, stamp, strlen(stamp));
+		r_strncat(file, stamp);
 		free(stamp);
 	
 	return file;
@@ -104,10 +102,11 @@ cli_note(void) {
 	file = mkfile(NULL);
 	stamp = tstamp("%T");
 	bp = fopen(file, "a+");
-	if(!bp) die("Couldn't open file.");
+	if(!bp) 
+		die("Couldn't open file.");
 
 	fputs("Note: ", stdout);
-	fgets(buf, 100, stdin);
+	fgets(buf, 1000, stdin);
 
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", buf);
@@ -115,9 +114,17 @@ cli_note(void) {
 	free(stamp);
 	fclose(bp);
 }
-
+	/*
+	 * Write strncat() wrapper that does truncation testing
+	 * call it r_strncat()?i
+	 * See if it saves SLOC or makes it more complicated.
+	 * 	Current SLOC: 169
+	 * 	w/ Wrapper fn: 164
+	 */
+	
 int
 main(int argc, char *argv[]) {
+
 	char *file;
 
 	if(argc == 1) {
