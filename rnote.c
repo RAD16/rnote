@@ -35,9 +35,14 @@ ls_notes() {
 	struct dirent **namelist;
 	
 	file = getenv("HOME");
-	strncat(file, NOTES_DIR, 8);
+	
+	if(strlen(NOTES_DIR) + 1 > sizeof(file) - strlen(file))
+		die("File would be truncated.");
+	else
+		strncat(file, NOTES_DIR, sizeof(file) - strlen(file) - 1);
 	
 	n = scandir(file, &namelist, 0, alphasort);
+
 	if(n < 0) 
 		die("Couldn't open ~/notes directory.");
 	 else {
