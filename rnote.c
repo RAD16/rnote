@@ -20,6 +20,7 @@ die(const char *message) {
 	exit(1);
 }
 
+/* custom strncat implementation guards against truncation errors */
 char
 *r_strncat(char *dest, char *src) {
 	if(strlen(src) + 1 > sizeof(dest) - strlen(dest))
@@ -64,6 +65,7 @@ char
 	struct tm *stmp;
 	char *stamp;
         time_t ts;
+
 	time(&ts);
 	stmp = localtime(&ts);
 	stamp = malloc(21 * sizeof(char));
@@ -86,7 +88,7 @@ char
 	chdir(file);
 
 	if(filename) { 
-		r_strncat(file, stamp);
+		r_strncat(file, filename);
 	} else 
 		r_strncat(file, stamp);
 		free(stamp);
@@ -124,7 +126,6 @@ cli_note(void) {
 	
 int
 main(int argc, char *argv[]) {
-
 	char *file;
 
 	if(argc == 1) {
@@ -152,6 +153,7 @@ main(int argc, char *argv[]) {
 				cli_note();
 				break;
 			case 'l':
+				if(argv[2]) die("Option 'l' takes no arguments.");
 				ls_notes();
 				break;
 			default :
