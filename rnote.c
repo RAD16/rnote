@@ -23,6 +23,7 @@ die(const char *message) {
 /* custom strncat implementation guards against truncation errors */
 char
 *r_strncat(char *dest, char *src) {
+
 	if(strlen(src) + 1 > sizeof(dest) - strlen(dest))
 		die("File would be truncated.");
 	else
@@ -37,7 +38,6 @@ write_note(char *note, char *editor) {
 	
 	sprintf(com, "%s %s", editor, note);
 	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
-/*        system(com); */
 }
  
 void
