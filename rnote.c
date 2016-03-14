@@ -1,8 +1,7 @@
 /*
 * Open editor to write a note.
-*/
-
-/*	TODO:
+*
+*	TODO:
 */
 
 #include <stdio.h>
@@ -29,11 +28,6 @@ write_note(char *note, char *editor) {
         system(com);
 }
  
-/*
-*  Goal: write function to list contents of ~/notes to stdout
-*  	>> alphabetize
-*/
-
 void
 ls_notes() {
 	int i, n;
@@ -44,7 +38,8 @@ ls_notes() {
 	strncat(file, NOTES_DIR, 8);
 	
 	n = scandir(file, &namelist, 0, alphasort);
-	if(n < 0) die("Couldn't open ~/notes directory.");
+	if(n < 0) 
+		die("Couldn't open ~/notes directory.");
 	 else {
 		for(i = 0; i < n; i++) {
 			printf("%s\n", namelist[i]->d_name);
