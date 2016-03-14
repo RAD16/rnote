@@ -75,13 +75,22 @@ char
 
 	file = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
+	printf(" Sizeof(file): %d, Strlen(file): %d\n", sizeof(file), strlen(file));
+	printf(" Sizeof(file): %d, Strlen(NOTES_DIR): %d\n", sizeof(file), strlen(NOTES_DIR)); 
 
-	strncat(file, NOTES_DIR, strlen(NOTES_DIR));
+	if(strlen(NOTES_DIR) + 1 > sizeof(file) - strlen(file))
+		die("File would be truncated.");
+	else
+		strncat(file, NOTES_DIR, sizeof(file) - strlen(file) - 1);
+	
 	if(!opendir(file)) die("Could not open ~/notes directory.");
 	chdir(file);
 	
 	if(filename) { 
-		strncat(file, filename, strlen(filename));
+		if(strlen(filename) + 1 > sizeof(file) - strlen(file))
+			die("File would be truncated.");
+		else
+			strncat(file, filename, sizeof(file) - strlen(file) - 1);
 	} else 
 		strncat(file, stamp, strlen(stamp));
 		free(stamp);
