@@ -99,15 +99,15 @@ char
 void
 cli_note(void) {
 	FILE *bp;
-	char *file, *stamp, buf[1001];
+	char *file, *stamp, buf[1000];
 
 	file = mkfile(NULL);
 	stamp = tstamp("%T");
 	bp = fopen(file, "a+");
 	if(!bp) die("Couldn't open file.");
 
-	printf("Note: ");
-	scanf("%[^\n]", buf); 
+	fputs("Note: ", stdout);
+	fgets(buf, 100, stdin);
 
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", buf);
