@@ -116,14 +116,7 @@ cli_note(void) {
 	free(stamp);
 	fclose(bp);
 }
-	/*
-	 * Write strncat() wrapper that does truncation testing
-	 * call it r_strncat()?i
-	 * See if it saves SLOC or makes it more complicated.
-	 * 	Current SLOC: 169
-	 * 	w/ Wrapper fn: 164
-	 */
-	
+
 int
 main(int argc, char *argv[]) {
 	char *file;
