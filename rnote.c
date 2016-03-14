@@ -36,7 +36,8 @@ write_note(char *note, char *editor) {
 	char com[50];
 	
 	sprintf(com, "%s %s", editor, note);
-        system(com);
+	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
+/*        system(com); */
 }
  
 void
