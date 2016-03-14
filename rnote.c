@@ -75,8 +75,6 @@ char
 
 	file = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
-	printf(" Sizeof(file): %d, Strlen(file): %d\n", sizeof(file), strlen(file));
-	printf(" Sizeof(file): %d, Strlen(NOTES_DIR): %d\n", sizeof(file), strlen(NOTES_DIR)); 
 
 	if(strlen(NOTES_DIR) + 1 > sizeof(file) - strlen(file))
 		die("File would be truncated.");
