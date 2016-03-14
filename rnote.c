@@ -40,7 +40,7 @@ write_note(char *note, char *editor) {
 }
  
 void
-ls_notes() {
+list_notes() {
 	int i, n;
 	char *file;
 	struct dirent **namelist;
@@ -124,16 +124,18 @@ main(int argc, char *argv[]) {
 	if(argc == 1) {
 		file = mkfile(NULL);	
 		write_note(file, EDITOR);			
+
 	} else if(argc == 2 && argv[1][0] != '-') {
 		file = mkfile(argv[1]);
 		write_note(file, EDITOR);			
+
 	} else if(argc < 5 && argv[1][0] == '-') {
-		char opt;
-		opt = argv[1][1];
+
+		char opt = argv[1][1];
 		switch(opt) {
 			case 'e' :
 				if(!argv[2]) 
-					die("Please specify and editor.");
+					die("Please specify an editor.");
 				if(argv[3]) {
 					file = mkfile(argv[3]);	
 				} else {
@@ -147,7 +149,7 @@ main(int argc, char *argv[]) {
 				break;
 			case 'l':
 				if(argv[2]) die("Option 'l' takes no arguments.");
-				ls_notes();
+				list_notes();
 				break;
 			default :
 				printf("Not an option. Try again.\n");
