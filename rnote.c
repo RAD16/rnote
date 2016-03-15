@@ -113,18 +113,20 @@ inline_note(char *line) {
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", line);
 	
-	int i, n, j;
+	int i, n;
 	char msg[70];
 	n = 0;
-	j = 0;
-	for(i = 0; n < 2 && i < strlen(line); i++) {
+	for(i = 1; n < 2 && i < strlen(line) - 1; ++i) {
 		if(isspace(line[i + 1])) 
 			n++;
-		printf("n: %d \t i: %d \t j: %d\n", n, i, j);
+		printf("n: %d \t i: %d \n", n, i);
 	}
-	char title[i];
-	strncpy(title, line, i);
+	printf("i:%d\n", i);
+	char title[i + 1];
+	printf("Sizeof(title): %d\n", sizeof(title));
+	strncpy(title, line, i + 1);
 	
+	printf("> Note \"%s\" written to file %s\n", title, file);
 	snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
 	puts(msg);
 	
