@@ -130,9 +130,9 @@ cli_note(char *line) {
 
 int
 check_space(char *string) {
-	int i; 
 
 	if(string){
+		int i; 
 		for(i = 0; i < strlen(string); i++) {
 			if(isspace(string[i])) 
 			return 1;
