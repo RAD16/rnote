@@ -1,4 +1,4 @@
-/*
+/* SLOC: 188
 * Open editor to write a note.
 *
 *	TODO:
@@ -100,9 +100,9 @@ char
 }
 
 void
-cli_note(char *line) {
+inline_note(char *line) {
 	FILE *bp;
-	char *file, *stamp, buf[1000];
+	char *file, *stamp;
 
 	file = mkfile(NULL);
 	stamp = tstamp("%T");
@@ -110,20 +110,11 @@ cli_note(char *line) {
 	if(!bp) 
 		die("Couldn't open file.");
 
-	if(line) {
-		
-		fprintf(bp, "\n\n%s \n", stamp);
-		fprintf(bp, "%s", line);
-		
-		printf("> Note written to file \"%s\"\n", file);
-	} else {
-		fputs("Note: ", stdout);
-		fgets(buf, 1000, stdin);
+	fprintf(bp, "\n\n%s \n", stamp);
+	fprintf(bp, "%s", line);
 	
-		fprintf(bp, "\n\n%s \n", stamp);
-		fprintf(bp, "%s", buf);
-	}
-
+	printf("> Note written to file \"%s\"\n", file);
+	
 	free(stamp);
 	fclose(bp);
 }
@@ -150,7 +141,7 @@ main(int argc, char *argv[]) {
 		write_note(file, EDITOR);			
 
 	} else if(argc == 2 && check_space(argv[1])) {
-		cli_note(argv[1]);
+		inline_note(argv[1]);
 
 	} else if(argc == 2 && argv[1][0] != '-') {
 		file = mkfile(argv[1]);
@@ -169,10 +160,6 @@ main(int argc, char *argv[]) {
 					file = mkfile(NULL);	
 				 
 				write_note(file, argv[2]);			
-				break;
-			case 'm':
-				if(argv[2]) die("Option 'm' takes no arguments.");
-				cli_note(NULL);
 				break;
 			case 'l':
 				if(argv[2]) die("Option 'l' takes no arguments.");
