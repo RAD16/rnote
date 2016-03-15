@@ -128,39 +128,13 @@ cli_note(char *line) {
 	fclose(bp);
 }
 
-void
-inline_note(char *line) {
-	
-	FILE *bp;
-	char *file, *stamp;
-
-	file = mkfile(NULL);
-	stamp = tstamp("%T");
-	bp = fopen(file, "a+");
-	if(!bp) 
-		die("Couldn't open file.");
-
-	fprintf(bp, "\n\n%s \n", stamp);
-	fprintf(bp, "%s", line);
-
-	free(stamp);
-	fclose(bp);
-	
-	printf("> Note written to file \"%s\"\n", file);
-}
-
-
 int
 check_space(char *string) {
-	int i, n; 
+	int i; 
 
-	n = 0;
 	if(string){
-		for(i = 0; string[i] != '\0'; i++) {
+		for(i = 0; i < strlen(string); i++) {
 			if(isspace(string[i])) 
-				n++;
-		}
-		if(n > 0) {
 			return 1;
 		}
 	} 
