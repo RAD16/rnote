@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <dirent.h>
 
@@ -85,7 +86,7 @@ char
 	file = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
 	r_strncat(file, NOTES_DIR);
-	
+
 	if(!opendir(file)) die("Could not open ~/notes directory.");
 	chdir(file);
 
@@ -119,6 +120,45 @@ cli_note(void) {
 	fclose(bp);
 }
 
+void
+inline_note(char *line) {
+	
+	FILE *bp;
+	char *file, *stamp;
+
+	file = mkfile(NULL);
+	stamp = tstamp("%T");
+	bp = fopen(file, "a+");
+	if(!bp) 
+		die("Couldn't open file.");
+
+	fprintf(bp, "\n\n%s \n", stamp);
+	fprintf(bp, "%s", line);
+
+	free(stamp);
+	fclose(bp);
+	
+	printf("> Note written to file \"%s\"\n", file);
+}
+
+
+int
+check_space(char *string) {
+	int i, n; 
+
+	n = 0;
+	if(string){
+		for(i = 0; string[i] != '\0'; i++) {
+			if(isspace(string[i])) 
+				n++;
+		}
+		if(n > 0) {
+			return 1;
+		}
+	} 
+	return 0;
+}
+
 int
 main(int argc, char *argv[]) {
 	char *file;
@@ -127,9 +167,15 @@ main(int argc, char *argv[]) {
 		file = mkfile(NULL);	
 		write_note(file, EDITOR);			
 
+	} else if(argc == 2 && check_space(argv[1]) == 1) {
+		inline_note(argv[1]);
+
 	} else if(argc == 2 && argv[1][0] != '-') {
 		file = mkfile(argv[1]);
 		write_note(file, EDITOR);			
+
+	} else if(argc < 5 && argv[1][0] == '"') {
+		puts("It's a quotation mark!");
 
 	} else if(argc < 5 && argv[1][0] == '-') {
 
@@ -138,11 +184,11 @@ main(int argc, char *argv[]) {
 			case 'e' :
 				if(!argv[2]) 
 					die("Please specify an editor.");
-				if(argv[3]) {
+				if(argv[3]) 
 					file = mkfile(argv[3]);	
-				} else {
+				 else 
 					file = mkfile(NULL);	
-				} 
+				 
 				write_note(file, argv[2]);			
 				break;
 			case 'm':
