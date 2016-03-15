@@ -135,7 +135,7 @@ check_space(char *string) {
 		int i; 
 		for(i = 0; i < strlen(string); i++) {
 			if(isspace(string[i])) 
-			return 1;
+				return 1;
 		}
 	} 
 	return 0;
@@ -149,15 +149,12 @@ main(int argc, char *argv[]) {
 		file = mkfile(NULL);	
 		write_note(file, EDITOR);			
 
-	} else if(argc == 2 && check_space(argv[1]) == 1) {
+	} else if(argc == 2 && check_space(argv[1])) {
 		cli_note(argv[1]);
 
 	} else if(argc == 2 && argv[1][0] != '-') {
 		file = mkfile(argv[1]);
 		write_note(file, EDITOR);			
-
-	} else if(argc < 5 && argv[1][0] == '"') {
-		puts("It's a quotation mark!");
 
 	} else if(argc < 5 && argv[1][0] == '-') {
 
