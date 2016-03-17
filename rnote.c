@@ -77,6 +77,7 @@ char
 	strftime(stamp, 21, opt, stmp);
 
 	return stamp;
+	free(stamp);
 }
 
 char 
@@ -94,7 +95,7 @@ char
 		r_strncat(file, filename);
 	} else 
 		r_strncat(file, stamp);
-		free(stamp);
+	free(stamp);
 	
 	return file;
 }
@@ -112,25 +113,52 @@ inline_note(char *line) {
 
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", line);
+	free(stamp);
 	
-	int i, n;
+	/* 
+	 * Inline Note message testing suite
+	 */
+/*	int i, n;
 	char msg[70];
+	char title[30];
 	n = 0;
-	for(i = 1; n < 2 && i < strlen(line) - 1; ++i) {
-		if(isspace(line[i + 1])) 
+	for(i = 0; n <= 1 && i < strlen(line); ++i) {
+		if(isspace(line[i])) 
 			n++;
-		printf("n: %d \t i: %d \n", n, i);
+		printf("i = %d n = %d\n", i, n);
+		if(n == 2) break;
+		title[i] = line[i];
 	}
-	printf("i:%d\n", i);
-	char title[i + 1];
-	printf("Sizeof(title): %d\n", sizeof(title));
-	strncpy(title, line, i + 1);
+	if(strlen(title) > sizeof(title))
+		puts("We bonked.");
 	
-	printf("> Note \"%s\" written to file %s\n", title, file);
+	puts(title);
+
+	printf("int i: %d\nsizeof(title): %zu\n strlen(title): %zu\n", i, sizeof(title), strlen(title));
+	printf("sizeof(line): %zu\n strlen(line): %zu\n", sizeof(line), strlen(line));
+	
 	snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
 	puts(msg);
 	
-	free(stamp);
+	fclose(bp);
+*/
+	int i, n;
+	char msg[70];
+	char title[40];
+	n = 0;
+	for(i = 0; n <= 1 && i < strlen(line); ++i) {
+		if(isspace(line[i])) 
+			n++;
+		if(n == 2) break;
+		title[i] = line[i];
+	}
+	if(strlen(title) > sizeof(title)) {
+		puts("Title bonked, but we recorded your note!");
+	} else	{
+		snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
+		puts(msg);
+	}
+	
 	fclose(bp);
 }
 
