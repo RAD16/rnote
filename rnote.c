@@ -10,6 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
@@ -88,7 +89,19 @@ char
 	stamp = tstamp("%Y-%m-%d");
 	r_strncat(file, NOTES_DIR);
 
-	if(!opendir(file)) die("Could not open ~/notes directory.");
+	if(!opendir(file)) {
+		puts("ERROR:Could not open ~/notes directory.");
+		puts("Should we create it? (y/n)");
+		char ans[1];
+		ans[0] = fgetc(stdin);
+		if(ans[0] == 'y') {
+			mkdir(file, 0750);
+		} else {
+			puts("Exiting.");
+			exit(0);
+		}
+	}
+
 	chdir(file);
 
 	if(filename) { 
@@ -117,6 +130,7 @@ inline_note(char *line) {
 	
 	/* 
 	 * Inline Note message testing suite
+	 * 	Delete after running a while. 
 	 */
 /*	int i, n;
 	char msg[70];
