@@ -95,13 +95,12 @@ get_dir(char *dir) {
 	char *home;
 	
 	home = getenv("HOME");
-	printf("get_dir 1 Dir: %s\n", dir);
 	if(!snprintf(dir, len, "%s%s", home, NOTES_DIR))
 		die("Couldn't create path to ~/notes directory.");
 
 	if(!opendir(dir)) {
-		puts("ERROR:Could not open ~/notes/ directory."
-		"Should we create it? (y/n)");
+		puts("ERROR:Could not open ~/notes/ directory.\n"
+			"Should we create it? (y/n)");
 		char ans[1];
 		ans[0] = fgetc(stdin);
 		if(ans[0] == 'y')  
@@ -115,7 +114,8 @@ get_dir(char *dir) {
 void
 inline_note(char *file, size_t len, char *line) {
 	FILE *bp;
-	char *stamp;
+	int i, n;
+	char *stamp, msg[70], title[40];
 
 	get_filename(file, NULL);
 	stamp = tstamp("%T");
@@ -127,52 +127,13 @@ inline_note(char *file, size_t len, char *line) {
 	fprintf(bp, "%s", line);
 	free(stamp);
 	
-	/* 
-	 * Inline Note message testing suite
-	 * 	Delete after running a while. 
-	 */
-/*	int i, n;
-	char msg[70];
-	char title[30];
-	n = 0;
-	for(i = 0; n <= 1 && i < strlen(line); ++i) {
-		if(isspace(line[i])) 
-			n++;
-		printf("i = %d n = %d\n", i, n);
-		if(n == 2) break;
-		title[i] = line[i];
-	}
-	if(strlen(title) > sizeof(title))
-		puts("We bonked.");
-	
-	puts(title);
-
-	printf("int i: %d\nsizeof(title): %zu\n strlen(title): %zu\n", i, sizeof(title), strlen(title));
-	printf("sizeof(line): %zu\n strlen(line): %zu\n", sizeof(line), strlen(line));
-	
-	snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
-	puts(msg);
-	
-	fclose(bp);
-*/
-	int i, n;
-	char msg[70];
-	char title[40];
-	n = 0;
-	for(i = 0; n < 2 && i < strlen(line); ++i) {
+	for(n = 0, i = 0; n < 2 && i < strlen(line); ++i) {
 		if(isspace(line[i])) 
 			++n;
 		title[i] = line[i];
 	}
 	if(n == 2) title[i - 1] = '\0';
 	else title[i] = '\0';
-		
-	printf("After loop:\ni:%d, n:%d\n", i, n);
-	printf("title[i]: %c\n", title[i]);
-	printf("title[i - 1]: %c\n", title[i - 1]);
-	printf("title[i - 2]: %c\n", title[i - 2]);
-	printf("title: %s\n", title);
-	printf("strlen(title):%d\n sizeof(title):%zu\n", strlen(title), sizeof(title));
 
 	if(strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
