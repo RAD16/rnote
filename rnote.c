@@ -12,26 +12,19 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <errno.h>
 
 #define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
 #define EDITOR "vis"		/* Text editor of choice */
 
 void
 die(const char *message) {
-	printf("ERROR: %s\n", message);
+	char buf[50];
+	snprintf(buf, sizeof(buf), "ERROR: %s\n", message);
+	fputs(buf, stderr);
 	exit(1);
 }
 
-/* custom strncat implementation guards against truncation errors */
-char
-*r_strncat(char *dest, char *src) {
-	if(strlen(src) + 1 > sizeof(dest) - strlen(dest))
-		die("File would be truncated.");
-	else
-		strncat(dest, src, sizeof(dest) - strlen(dest) - 1);
-
-	return dest;
-}
 
 void
 write_note(char *note, char *editor) {
@@ -44,11 +37,13 @@ write_note(char *note, char *editor) {
 void
 list_notes() {
 	int i, n;
-	char *file;
+	char *f, file[50];
 	struct dirent **namelist;
 	
-	file = getenv("HOME");
-	r_strncat(file, NOTES_DIR);
+	f = getenv("HOME");
+	strlcpy(file, f, sizeof(file));
+	if(strlcat(file, NOTES_DIR, sizeof(file)) >= sizeof(file))
+		die("File path truncated.");
 	
 	n = scandir(file, &namelist, 0, alphasort);
 	if(n < 0) 
@@ -81,44 +76,62 @@ char
 	free(stamp);
 }
 
-char 
-*mkfile(char *filename) {
-	char *file, *stamp;
+void 
+mkfile(char *infile, size_t len, char *filename) {
+	char *home, *stamp, *file;
 
-	file = getenv("HOME");
+	home = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
-	r_strncat(file, NOTES_DIR);
+	
+	puts(home);
+	puts(infile);
+	if(strlcat(infile, home, len) >= len)
+		die("Couldn't add home directory to filepath in mkfile.");
+	printf("%s\n", infile);
+	
+	if(strlcat(infile, NOTES_DIR, len - 1) >= len)
+		die("Couldn't add notes directory to filepath in mkfile.");
 
-	if(!opendir(file)) {
-		puts("ERROR:Could not open ~/notes directory.");
+	printf("Infile: %zu\n", sizeof(infile));
+	printf("Strlen Infile: %zu\n", strlen(infile));
+	printf("Infile: %c\n", infile[18]);
+	file = infile;
+	DIR *dir;
+	snprintf(file, 50, "%s", infile);
+	dir = opendir(file);
+	if(!dir) {
+		perror("What's going on?");
+		printf("ERROR:Could not open %s directory.", file);
 		puts("Should we create it? (y/n)");
 		char ans[1];
 		ans[0] = fgetc(stdin);
 		if(ans[0] == 'y') {
-			mkdir(file, 0750);
+			mkdir(infile, 0750);
 		} else {
 			puts("Exiting.");
 			exit(0);
 		}
 	}
 
-	chdir(file);
+	printf("%s\n", infile);
+	chdir(infile);
 
 	if(filename) { 
-		r_strncat(file, filename);
+		if(strlcat(infile, filename, len) >= len)
+			die("Couldn't add filename to path.");
 	} else 
-		r_strncat(file, stamp);
+		if(strlcat(infile, stamp, len) >= len)
+			die("Couldn't add timestamp to path.");
+	printf("Final in mkfile: %s\n", infile);
 	free(stamp);
-	
-	return file;
 }
 
 void
-inline_note(char *line) {
+inline_note(char *file, size_t len, char *line) {
 	FILE *bp;
-	char *file, *stamp;
+	char *stamp;
 
-	file = mkfile(NULL);
+	mkfile(file, len, NULL);
 	stamp = tstamp("%T");
 	bp = fopen(file, "a+");
 	if(!bp) 
@@ -191,17 +204,17 @@ check_space(char *string) {
 
 int
 main(int argc, char *argv[]) {
-	char *file;
+	char file[100];
 
 	if(argc == 1) {
-		file = mkfile(NULL);	
+		mkfile(file, sizeof(file), NULL);	
 		write_note(file, EDITOR);			
 
 	} else if(argc == 2 && check_space(argv[1])) {
-		inline_note(argv[1]);
+		inline_note(file, sizeof(file), argv[1]);
 
 	} else if(argc == 2 && argv[1][0] != '-') {
-		file = mkfile(argv[1]);
+		mkfile(file, sizeof(file), argv[1]);
 		write_note(file, EDITOR);			
 
 	} else if(argc < 5 && argv[1][0] == '-') {
@@ -211,19 +224,20 @@ main(int argc, char *argv[]) {
 			case 'e' :
 				if(!argv[2]) 
 					die("Please specify an editor.");
-				if(argv[3]) 
-					file = mkfile(argv[3]);	
-				 else 
-					file = mkfile(NULL);	
-				 
-				write_note(file, argv[2]);			
+				if(argv[3]) {
+					mkfile(file, sizeof(file), argv[3]);	
+					write_note(file, argv[2]);			
+				 } else {
+					mkfile(file, sizeof(file), NULL);	
+					write_note(file, argv[2]);			
+				}
 				break;
 			case 'l':
 				if(argv[2]) die("Option 'l' takes no arguments.");
 				list_notes();
 				break;
 			default :
-				printf("Not an option. Try again.\n");
+				puts("Not an option. Try again.\n");
 				break;
 		}
 	} else die("Too many arguments.");
