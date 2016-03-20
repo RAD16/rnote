@@ -78,30 +78,32 @@ char
 
 void 
 mkfile(char *infile, size_t len, char *filename) {
-	char *home, *stamp, *file;
+	char *home, *stamp, file[50];
 
 	home = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
 	
 	puts(home);
-	puts(infile);
-	if(strlcat(infile, home, len) >= len)
+/*	printf("File[0]: %c\n", file[0]);
+	printf("file[0]: %c\n", file[0]);
+	printf("file[1]: %c\n", file[1]);
+*/	if(strlcpy(infile, home, len) >= len)
 		die("Couldn't add home directory to filepath in mkfile.");
 	printf("%s\n", infile);
+	printf("file[0]: %c\n", infile[0]);
+	printf("file[1]: %c\n", infile[1]);
 	
-	if(strlcat(infile, NOTES_DIR, len - 1) >= len)
+	if(strlcat(infile, NOTES_DIR, len) >= len)
 		die("Couldn't add notes directory to filepath in mkfile.");
 
-	printf("Infile: %zu\n", sizeof(infile));
+	printf("file: %zu\n", sizeof(infile));
 	printf("Strlen Infile: %zu\n", strlen(infile));
-	printf("Infile: %c\n", infile[18]);
-	file = infile;
-	DIR *dir;
-	snprintf(file, 50, "%s", infile);
-	dir = opendir(file);
-	if(!dir) {
+	printf("file[0]: %c\n", infile[0]);
+	printf("file: %s\n", infile);
+
+	if(!opendir(infile)) {
 		perror("What's going on?");
-		printf("ERROR:Could not open %s directory.", file);
+		printf("ERROR:Could not open %s directory.", infile);
 		puts("Should we create it? (y/n)");
 		char ans[1];
 		ans[0] = fgetc(stdin);
@@ -114,7 +116,7 @@ mkfile(char *infile, size_t len, char *filename) {
 	}
 
 	printf("%s\n", infile);
-	chdir(infile);
+	chdir(file);
 
 	if(filename) { 
 		if(strlcat(infile, filename, len) >= len)
@@ -123,7 +125,8 @@ mkfile(char *infile, size_t len, char *filename) {
 		if(strlcat(infile, stamp, len) >= len)
 			die("Couldn't add timestamp to path.");
 	printf("Final in mkfile: %s\n", infile);
-	free(stamp);
+/*	sprintf(infile, "%s", file);
+*/	free(stamp);
 }
 
 void
@@ -208,6 +211,7 @@ main(int argc, char *argv[]) {
 
 	if(argc == 1) {
 		mkfile(file, sizeof(file), NULL);	
+		printf("MAIN: file before write: %s\n", file);
 		write_note(file, EDITOR);			
 
 	} else if(argc == 2 && check_space(argv[1])) {
