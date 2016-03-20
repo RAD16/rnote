@@ -25,7 +25,6 @@ die(const char *message) {
 	exit(1);
 }
 
-
 void
 write_note(char *note, char *editor) {
 	char com[50];
@@ -105,12 +104,10 @@ get_dir(char *dir) {
 		"Should we create it? (y/n)");
 		char ans[1];
 		ans[0] = fgetc(stdin);
-		if(ans[0] == 'y') {
+		if(ans[0] == 'y')  
 			mkdir(dir, 0750);
-		} else {
-			puts("Exiting.");
-			exit(0);
-		}
+		else 
+			die("Note not written. Filepath nonexistent.");
 	}
 	chdir(dir);
 }
@@ -162,12 +159,21 @@ inline_note(char *file, size_t len, char *line) {
 	char msg[70];
 	char title[40];
 	n = 0;
-	for(i = 0; n <= 1 && i < strlen(line); ++i) {
+	for(i = 0; n < 2 && i < strlen(line); ++i) {
 		if(isspace(line[i])) 
-			n++;
-		if(n == 2) break;
+			++n;
 		title[i] = line[i];
 	}
+	if(n == 2) title[i - 1] = '\0';
+	else title[i] = '\0';
+		
+	printf("After loop:\ni:%d, n:%d\n", i, n);
+	printf("title[i]: %c\n", title[i]);
+	printf("title[i - 1]: %c\n", title[i - 1]);
+	printf("title[i - 2]: %c\n", title[i - 2]);
+	printf("title: %s\n", title);
+	printf("strlen(title):%d\n sizeof(title):%zu\n", strlen(title), sizeof(title));
+
 	if(strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
 	} else	{
@@ -205,9 +211,7 @@ main(int argc, char *argv[]) {
 		inline_note(file, sizeof(file), argv[1]);
 
 	} else if(argc == 2 && argv[1][0] != '-') {
-		puts("Here?");
 		get_filename(file, argv[1]);
-		puts("Here? 2");
 		write_note(file, EDITOR);			
 
 	} else if(argc < 5 && argv[1][0] == '-') {
