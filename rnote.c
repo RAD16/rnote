@@ -77,50 +77,43 @@ char
 }
 
 void 
-mkfile(char *infile, size_t len, char *filename) {
-	char *home, *stamp;
+get_filename(char *path, size_t len, char *filename) {
+	size_t check;
+	char *name;
 
+	printf("get_filename 1: path: %s\n", path);
+	if(filename) name = filename;
+	else name = tstamp("%Y-%m-%d");
+
+	if(strlcat(path, name, len) > len)
+		die("Unable to complete file path.");
+	
+	if(filename) free(name);
+}
+
+void
+get_dir(char *dir) {
+	size_t len = 50;	
+	char *home;
+	
 	home = getenv("HOME");
-	stamp = tstamp("%Y-%m-%d");
-	
-	puts(home);
-	printf("%s\n", infile);
-	printf("file[0]: %c\n", infile[0]);
-	printf("file[1]: %c\n", infile[1]);
-	
+	printf("get_dir 1 Dir: %s\n", dir);
+	if(!snprintf(dir, len, "%s%s", home, NOTES_DIR))
+		die("Couldn't create path to ~/notes directory.");
 
-	printf("file: %zu\n", sizeof(infile));
-	printf("Strlen Infile: %zu\n", strlen(infile));
-	printf("file[0]: %c\n", infile[0]);
-	printf("file: %s\n", infile);
-
-	sprintf(infile, "%s%s", home, NOTES_DIR);
-
-	if(!opendir(infile)) {
-		perror("What's going on?");
-		printf("ERROR:Could not open %s directory.", infile);
-		puts("Should we create it? (y/n)");
+	if(!opendir(dir)) {
+		puts("ERROR:Could not open ~/notes/ directory."
+		"Should we create it? (y/n)");
 		char ans[1];
 		ans[0] = fgetc(stdin);
 		if(ans[0] == 'y') {
-			mkdir(infile, 0750);
+			mkdir(dir, 0750);
 		} else {
 			puts("Exiting.");
 			exit(0);
 		}
 	}
-
-	printf("%s\n", infile);
-	chdir(infile);
-
-	if(filename) { 
-		sprintf(infile, "%s", filename);
-	} else 
-		sprintf(infile, "%s", stamp);
-
-	printf("Final in mkfile: %s\n", infile);
-/*	sprintf(infile, "%s", file);
-*/	free(stamp);
+	chdir(dir);
 }
 
 void
@@ -128,7 +121,7 @@ inline_note(char *file, size_t len, char *line) {
 	FILE *bp;
 	char *stamp;
 
-	mkfile(file, len, NULL);
+	get_dir(file);
 	stamp = tstamp("%T");
 	bp = fopen(file, "a+");
 	if(!bp) 
@@ -185,7 +178,7 @@ inline_note(char *file, size_t len, char *line) {
 	
 	fclose(bp);
 }
-
+/*
 int
 check_space(char *string) {
 
@@ -198,11 +191,15 @@ check_space(char *string) {
 	} 
 	return 0;
 }
+*/
 
-int
+	int
 main(int argc, char *argv[]) {
-	char file[100];
-
+	char file[50];
+	get_dir(file);
+	printf("Main - Dir: %s\n", file);
+	get_filename(file, sizeof(file), NULL);
+/*
 	if(argc == 1) {
 		mkfile(file, sizeof(file), NULL);	
 		printf("MAIN: file before write: %s\n", file);
@@ -239,6 +236,6 @@ main(int argc, char *argv[]) {
 				break;
 		}
 	} else die("Too many arguments.");
-
+*/
 	return 0;
 }
