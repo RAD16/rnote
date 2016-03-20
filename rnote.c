@@ -78,28 +78,23 @@ char
 
 void 
 mkfile(char *infile, size_t len, char *filename) {
-	char *home, *stamp, file[50];
+	char *home, *stamp;
 
 	home = getenv("HOME");
 	stamp = tstamp("%Y-%m-%d");
 	
 	puts(home);
-/*	printf("File[0]: %c\n", file[0]);
-	printf("file[0]: %c\n", file[0]);
-	printf("file[1]: %c\n", file[1]);
-*/	if(strlcpy(infile, home, len) >= len)
-		die("Couldn't add home directory to filepath in mkfile.");
 	printf("%s\n", infile);
 	printf("file[0]: %c\n", infile[0]);
 	printf("file[1]: %c\n", infile[1]);
 	
-	if(strlcat(infile, NOTES_DIR, len) >= len)
-		die("Couldn't add notes directory to filepath in mkfile.");
 
 	printf("file: %zu\n", sizeof(infile));
 	printf("Strlen Infile: %zu\n", strlen(infile));
 	printf("file[0]: %c\n", infile[0]);
 	printf("file: %s\n", infile);
+
+	sprintf(infile, "%s%s", home, NOTES_DIR);
 
 	if(!opendir(infile)) {
 		perror("What's going on?");
@@ -116,14 +111,13 @@ mkfile(char *infile, size_t len, char *filename) {
 	}
 
 	printf("%s\n", infile);
-	chdir(file);
+	chdir(infile);
 
 	if(filename) { 
-		if(strlcat(infile, filename, len) >= len)
-			die("Couldn't add filename to path.");
+		sprintf(infile, "%s", filename);
 	} else 
-		if(strlcat(infile, stamp, len) >= len)
-			die("Couldn't add timestamp to path.");
+		sprintf(infile, "%s", stamp);
+
 	printf("Final in mkfile: %s\n", infile);
 /*	sprintf(infile, "%s", file);
 */	free(stamp);
