@@ -19,7 +19,7 @@
 
 void
 die(const char *message) {
-	char buf[50];
+	char buf[80];
 	snprintf(buf, sizeof(buf), "ERROR: %s\n", message);
 	fputs(buf, stderr);
 	exit(1);
@@ -77,23 +77,22 @@ char
 }
 
 void 
-get_filename(char *path, size_t len, char *filename) {
-	size_t check;
+get_filename(char *path, char *filename) {
+	size_t len = 100;
 	char *name;
 
-	printf("get_filename 1: path: %s\n", path);
 	if(filename) name = filename;
 	else name = tstamp("%Y-%m-%d");
 
 	if(strlcat(path, name, len) > len)
 		die("Unable to complete file path.");
 	
-	if(filename) free(name);
+	if(!filename) free(name);
 }
 
 void
 get_dir(char *dir) {
-	size_t len = 50;	
+	size_t len = 100;	
 	char *home;
 	
 	home = getenv("HOME");
@@ -121,7 +120,7 @@ inline_note(char *file, size_t len, char *line) {
 	FILE *bp;
 	char *stamp;
 
-	get_dir(file);
+	get_filename(file, NULL);
 	stamp = tstamp("%T");
 	bp = fopen(file, "a+");
 	if(!bp) 
@@ -178,7 +177,7 @@ inline_note(char *file, size_t len, char *line) {
 	
 	fclose(bp);
 }
-/*
+
 int
 check_space(char *string) {
 
@@ -191,25 +190,24 @@ check_space(char *string) {
 	} 
 	return 0;
 }
-*/
+
 
 	int
 main(int argc, char *argv[]) {
-	char file[50];
+	char file[100];
 	get_dir(file);
-	printf("Main - Dir: %s\n", file);
-	get_filename(file, sizeof(file), NULL);
-/*
+
 	if(argc == 1) {
-		mkfile(file, sizeof(file), NULL);	
-		printf("MAIN: file before write: %s\n", file);
+		get_filename(file, NULL);	
 		write_note(file, EDITOR);			
 
 	} else if(argc == 2 && check_space(argv[1])) {
 		inline_note(file, sizeof(file), argv[1]);
 
 	} else if(argc == 2 && argv[1][0] != '-') {
-		mkfile(file, sizeof(file), argv[1]);
+		puts("Here?");
+		get_filename(file, argv[1]);
+		puts("Here? 2");
 		write_note(file, EDITOR);			
 
 	} else if(argc < 5 && argv[1][0] == '-') {
@@ -220,10 +218,10 @@ main(int argc, char *argv[]) {
 				if(!argv[2]) 
 					die("Please specify an editor.");
 				if(argv[3]) {
-					mkfile(file, sizeof(file), argv[3]);	
+					get_filename(file, argv[3]);	
 					write_note(file, argv[2]);			
 				 } else {
-					mkfile(file, sizeof(file), NULL);	
+					get_filename(file, NULL);	
 					write_note(file, argv[2]);			
 				}
 				break;
@@ -232,10 +230,10 @@ main(int argc, char *argv[]) {
 				list_notes();
 				break;
 			default :
-				puts("Not an option. Try again.\n");
+				puts("Not an option. Try again.");
 				break;
 		}
 	} else die("Too many arguments.");
-*/
+
 	return 0;
 }
