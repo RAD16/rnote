@@ -146,20 +146,6 @@ inline_note(char *file, size_t len, char *line) {
 }
 
 int
-check_space(char *string) {
-
-	if(string){
-		int i; 
-		for(i = 0; i < strlen(string); i++) {
-			if(isspace(string[i])) 
-				return 1;
-		}
-	} 
-	return 0;
-}
-
-
-	int
 main(int argc, char *argv[]) {
 	char file[100];
 	get_dir(file);
@@ -168,13 +154,12 @@ main(int argc, char *argv[]) {
 		get_filename(file, NULL);	
 		write_note(file, EDITOR);			
 
-	} else if(argc == 2 && check_space(argv[1])) {
+	} else if(argc == 2 && strstr(argv[1], " ")) {
 		inline_note(file, sizeof(file), argv[1]);
 
 	} else if(argc == 2 && argv[1][0] != '-') {
 		get_filename(file, argv[1]);
 		write_note(file, EDITOR);			
-
 	} else if(argc < 5 && argv[1][0] == '-') {
 
 		char opt = argv[1][1];
