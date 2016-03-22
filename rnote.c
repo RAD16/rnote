@@ -136,8 +136,11 @@ inline_note(char *file, size_t len, char *line) {
 			++n;
 		title[i] = line[i];
 	}
+	/* before ternary
 	if(n == 2) title[i - 1] = '\0';
 	else title[i] = '\0';
+	*/
+	(n == 2) ? (title[i - 1] = '\0') : (title[i] = '\0');
 
 	if(strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
