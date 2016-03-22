@@ -80,8 +80,11 @@ get_filename(char *path, char *filename) {
 	size_t len = 100;
 	char *name;
 
+	/* Before ternary operator
 	if(filename) name = filename;
 	else name = tstamp("%Y-%m-%d");
+	*/
+	name = filename ? filename : tstamp("%Y-%m-%d");
 
 	if(strlcat(path, name, len) > len)
 		die("Unable to complete file path.");
