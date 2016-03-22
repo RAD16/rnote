@@ -1,4 +1,4 @@
-/* SLOC: 188
+/* 
 * Open editor to write a note.
 *
 *	TODO:
@@ -134,6 +134,22 @@ check_space(char *string) {
 
 int
 main(int argc, char *argv[]) {
+/*	int a, b;
+	b = strlen(argv[1]) + 1;
+	a = sizeof(argv[2]) - strlen(argv[2]);
+	printf("sizeof(argv[2]) - strlen(argv[2]) = %d\n", a);
+	printf("strlen(argv[1]) = %d\n", b);
+*/
+
+	char A[10] = "ballywallygoogledude";
+	printf("A: %s\n", A);
+	printf("Strlen(A) = %zu\n", strlen(A));
+	printf("Sizeof(A) = %zu\n", sizeof(A));
+	printf("Sizeof(argv[1]) = %zu\n", sizeof(argv[1]));
+
+	
+
+/*
 	char *file;
 
 	if(argc == 1) {
@@ -171,5 +187,5 @@ main(int argc, char *argv[]) {
 		}
 	} else die("Too many arguments.");
 
-	return 0;
+*/	return 0;
 }
