@@ -10,26 +10,19 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <dirent.h>
+#include <errno.h>
 
 #define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
 #define EDITOR "vis"		/* Text editor of choice */
 
 void
 die(const char *message) {
-	printf("ERROR: %s\n", message);
+	char buf[80];
+	snprintf(buf, sizeof(buf), "ERROR: %s\n", message);
+	fputs(buf, stderr);
 	exit(1);
-}
-
-/* custom strncat implementation guards against truncation errors */
-char
-*r_strncat(char *dest, char *src) {
-	if(strlen(src) + 1 > sizeof(dest) - strlen(dest))
-		die("File would be truncated.");
-	else
-		strncat(dest, src, sizeof(dest) - strlen(dest) - 1);
-
-	return dest;
 }
 
 void
@@ -43,11 +36,13 @@ write_note(char *note, char *editor) {
 void
 list_notes() {
 	int i, n;
-	char *file;
+	char *f, file[50];
 	struct dirent **namelist;
 	
-	file = getenv("HOME");
-	r_strncat(file, NOTES_DIR);
+	f = getenv("HOME");
+	strlcpy(file, f, sizeof(file));
+	if(strlcat(file, NOTES_DIR, sizeof(file)) >= sizeof(file))
+		die("File path truncated.");
 	
 	n = scandir(file, &namelist, 0, alphasort);
 	if(n < 0) 
@@ -77,34 +72,53 @@ char
 	strftime(stamp, 21, opt, stmp);
 
 	return stamp;
+	free(stamp);
 }
 
-char 
-*mkfile(char *filename) {
-	char *file, *stamp;
+void 
+get_filename(char *path, char *filename) {
+	size_t len = 100;
+	char *name;
 
-	file = getenv("HOME");
-	stamp = tstamp("%Y-%m-%d");
-	r_strncat(file, NOTES_DIR);
+	if(filename) name = filename;
+	else name = tstamp("%Y-%m-%d");
 
-	if(!opendir(file)) die("Could not open ~/notes directory.");
-	chdir(file);
-
-	if(filename) { 
-		r_strncat(file, filename);
-	} else 
-		r_strncat(file, stamp);
-		free(stamp);
+	if(strlcat(path, name, len) > len)
+		die("Unable to complete file path.");
 	
-	return file;
+	if(!filename) free(name);
 }
 
 void
-inline_note(char *line) {
-	FILE *bp;
-	char *file, *stamp;
+get_dir(char *dir) {
+	size_t len = 100;	
+	char *home;
+	
+	home = getenv("HOME");
+	if(!snprintf(dir, len, "%s%s", home, NOTES_DIR))
+		die("Couldn't create path to ~/notes directory.");
 
-	file = mkfile(NULL);
+	if(!opendir(dir)) {
+		puts("ERROR:Could not open ~/notes/ directory.\n"
+			"Should we create it? (y/n)");
+		char ans[1];
+		ans[0] = fgetc(stdin);
+		if(ans[0] == 'y')  
+			mkdir(dir, 0750);
+		else 
+			die("Note not written. Filepath nonexistent.");
+	}
+	chdir(dir);
+}
+
+void
+inline_note(char *file, size_t len, char *line) {
+	FILE *bp;
+	int i, n;
+	char *stamp;
+	char title[40], msg[70];
+
+	get_filename(file, NULL);
 	stamp = tstamp("%T");
 	bp = fopen(file, "a+");
 	if(!bp) 
@@ -112,57 +126,46 @@ inline_note(char *line) {
 
 	fprintf(bp, "\n\n%s \n", stamp);
 	fprintf(bp, "%s", line);
-	
-	printf("> Note written to file \"%s\"\n", file);
-	
 	free(stamp);
+	
+	/*
+	*  Parse spaces to create note title
+	*  Title has 3 Words (n < 3) 
+	*/
+
+	for(n = 0, i = 0; n < 3 && i < strlen(line); ++i) {
+		if(isspace(line[i])) 
+			++n;
+		title[i] = line[i];
+	}
+	if(n == 3) title[i - 1] = '\0';
+	else title[i] = '\0';
+
+	if(strlen(title) > sizeof(title)) {
+		puts("Title bonked, but we recorded your note!");
+	} else	{
+		snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
+		puts(msg);
+	}
+	
 	fclose(bp);
 }
 
 int
-check_space(char *string) {
-
-	if(string){
-		int i; 
-		for(i = 0; i < strlen(string); i++) {
-			if(isspace(string[i])) 
-				return 1;
-		}
-	} 
-	return 0;
-}
-
-int
 main(int argc, char *argv[]) {
-/*	int a, b;
-	b = strlen(argv[1]) + 1;
-	a = sizeof(argv[2]) - strlen(argv[2]);
-	printf("sizeof(argv[2]) - strlen(argv[2]) = %d\n", a);
-	printf("strlen(argv[1]) = %d\n", b);
-*/
-
-	char A[10] = "ballywallygoogledude";
-	printf("A: %s\n", A);
-	printf("Strlen(A) = %zu\n", strlen(A));
-	printf("Sizeof(A) = %zu\n", sizeof(A));
-	printf("Sizeof(argv[1]) = %zu\n", sizeof(argv[1]));
-
-	
-
-/*
-	char *file;
+	char file[100];
+	get_dir(file);
 
 	if(argc == 1) {
-		file = mkfile(NULL);	
+		get_filename(file, NULL);	
 		write_note(file, EDITOR);			
 
-	} else if(argc == 2 && check_space(argv[1])) {
-		inline_note(argv[1]);
+	} else if(argc == 2 && strstr(argv[1], " ")) {
+		inline_note(file, sizeof(file), argv[1]);
 
 	} else if(argc == 2 && argv[1][0] != '-') {
-		file = mkfile(argv[1]);
+		get_filename(file, argv[1]);
 		write_note(file, EDITOR);			
-
 	} else if(argc < 5 && argv[1][0] == '-') {
 
 		char opt = argv[1][1];
@@ -170,22 +173,23 @@ main(int argc, char *argv[]) {
 			case 'e' :
 				if(!argv[2]) 
 					die("Please specify an editor.");
-				if(argv[3]) 
-					file = mkfile(argv[3]);	
-				 else 
-					file = mkfile(NULL);	
-				 
-				write_note(file, argv[2]);			
+				if(argv[3]) {
+					get_filename(file, argv[3]);	
+					write_note(file, argv[2]);			
+				 } else {
+					get_filename(file, NULL);	
+					write_note(file, argv[2]);			
+				}
 				break;
 			case 'l':
 				if(argv[2]) die("Option 'l' takes no arguments.");
 				list_notes();
 				break;
 			default :
-				printf("Not an option. Try again.\n");
+				puts("Not an option. Try again.");
 				break;
 		}
 	} else die("Too many arguments.");
 
-*/	return 0;
+	return 0;
 }
