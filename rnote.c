@@ -115,7 +115,8 @@ void
 inline_note(char *file, size_t len, char *line) {
 	FILE *bp;
 	int i, n;
-	char *stamp, msg[70], title[40];
+	char *stamp;
+	char title[40], msg[70];
 
 	get_filename(file, NULL);
 	stamp = tstamp("%T");
