@@ -3,6 +3,8 @@
 *
 *	TODO:
 */
+#define VERSION "rnote-0.1" 
+#define YEAR "2016" 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,10 +82,6 @@ get_filename(char *path, char *filename) {
 	size_t len = 100;
 	char *name;
 
-	/* Before ternary operator
-	if(filename) name = filename;
-	else name = tstamp("%Y-%m-%d");
-	*/
 	name = filename ? filename : tstamp("%Y-%m-%d");
 
 	if(strlcat(path, name, len) > len)
@@ -136,10 +134,7 @@ inline_note(char *file, size_t len, char *line) {
 			++n;
 		title[i] = line[i];
 	}
-	/* before ternary
-	if(n == 2) title[i - 1] = '\0';
-	else title[i] = '\0';
-	*/
+
 	(n == 2) ? (title[i - 1] = '\0') : (title[i] = '\0');
 
 	if(strlen(title) > sizeof(title)) {
@@ -185,6 +180,9 @@ main(int argc, char *argv[]) {
 			case 'l':
 				if(argv[2]) die("Option 'l' takes no arguments.");
 				list_notes();
+				break;
+			case 'v':
+				printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
 				break;
 			default :
 				puts("Not an option. Try again.");
