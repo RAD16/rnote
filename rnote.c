@@ -182,7 +182,11 @@ main(int argc, char *argv[]) {
 				list_notes();
 				break;
 			case 'v':
+				if(argv[2]) die("Option 'v' takes no arguments.");
 				printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
+				break;
+			case 'p':
+				system("mplayer /home/rad16/.surf/video/x.mp4");
 				break;
 			default :
 				puts("Not an option. Try again.");
