@@ -82,7 +82,7 @@ get_filename(char *path, char *filename) {
 	size_t len = 100;
 	char *name;
 
-	name = filename ? filename : tstamp("%Y-%m-%d");
+	name = filename ?: tstamp("%Y-%m-%d");
 
 	if(strlcat(path, name, len) > len)
 		die("Unable to complete file path.");
@@ -172,15 +172,9 @@ main(int argc, char *argv[]) {
 		char opt = argv[1][1];
 		switch(opt) {
 			case 'e' :
-				if(!argv[2]) 
-					die("Please specify an editor.");
-				if(argv[3]) {
-					get_filename(file, argv[3]);	
-					write_note(file, argv[2]);			
-				 } else {
-					get_filename(file, NULL);	
-					write_note(file, argv[2]);			
-				}
+				argv[2] ?: die("Please specify an editor.");
+				get_filename(file, argv[3] ?: NULL);
+				write_note(file, argv[2]);			
 				break;
 			case 'l':
 				if(argv[2]) die("Option 'l' takes no arguments.");
