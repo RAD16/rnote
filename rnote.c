@@ -1,4 +1,4 @@
-/* SLOC: 188
+/* 
 * Open editor to write a note.
 *
 *	TODO:
@@ -129,13 +129,18 @@ inline_note(char *file, size_t len, char *line) {
 	fprintf(bp, "%s", line);
 	free(stamp);
 	
-	for(n = 0, i = 0; n < 2 && i < strlen(line); ++i) {
+	/*
+	*  Parse spaces to create note title
+	*  Title has 3 Words (n < 3) 
+	*/
+
+	for(n = 0, i = 0; n < 3 && i < strlen(line); ++i) {
 		if(isspace(line[i])) 
 			++n;
 		title[i] = line[i];
 	}
 
-	(n == 2) ? (title[i - 1] = '\0') : (title[i] = '\0');
+	(n == 3) ? (title[i - 1] = '\0') : (title[i] = '\0');
 
 	if(strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
