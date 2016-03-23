@@ -1,8 +1,12 @@
 /* 
+* rnote - (c) 2016 Ryan Donnelly <herbivore dot linux at gmail dot com>
+*	rnote is licensed under the GPL v2.1
+*	rnote is available at https://gihub.com/rad16/rnote
+*
 * Open editor to write a note.
 *
-*	TODO:
 */
+
 #define VERSION "rnote-0.1" 
 #define YEAR "2016" 
 
