@@ -20,8 +20,6 @@
 #include <dirent.h>
 #include <errno.h>
 
-void get_dir(char *dir);
-
 #define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
 #define EDITOR "vis"		/* Text editor of choice */
 
@@ -31,75 +29,6 @@ die(const char *message) {
 	snprintf(buf, sizeof(buf), "ERROR: %s\n", message);
 	fputs(buf, stderr);
 	exit(1);
-}
-
-void
-write_note(char *note, char *editor) {
-	char com[50];
-	
-	snprintf(com, sizeof(com), "%s %s", editor, note);
-	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
-}
- 
-void
-list_notes() {
-	int i, n;
-	char *f, file[50];
-	struct dirent **namelist;
-	
-	f = getenv("HOME");
-	strlcpy(file, f, sizeof(file));
-	if(strlcat(file, NOTES_DIR, sizeof(file)) >= sizeof(file))
-		die("File path truncated.");
-	
-	n = scandir(file, &namelist, 0, alphasort);
-	if(n < 0) 
-		die("Couldn't open ~/notes directory.");
-	 else {
-		for(i = 0; i < n; i++) {
-			if(namelist[i]->d_name[0] != '.') {
-				printf("%s\n", namelist[i]->d_name);
-				free(namelist[i]);
-			} else 	continue;
-		}
-	}
-	free(namelist);
-}
-
-void
-delete_note(int count, char *target[]) { 
-	int c, i, k = 0;
-	int kill_index[20] = {};
-		
-	for(c = 2; c < count; c++) {
-		FILE *fp;
-		char path[75];
-		
-		get_dir(path);
-		strlcat(path, target[c], 75);
-		
-		if((fp = fopen(path, "r")) != NULL) {
-			kill_index[k] = c;
-			k++;
-		} else 
-			printf("No such file:\t%s\n", target[c]);
-	}
-	
-	if(kill_index[0] != 0) {
-		puts("Files to be deleted:");
-		for(i = 0; kill_index[i] != '\0'; i++) {
-			printf("-> %s\n", target[kill_index[i]]);
-		}
-		puts("Delete selected files? (y/n)");
-		if(getchar() == 'y') {
-			for(i = 0; kill_index[i] != '\0'; i++) {
-				remove(target[kill_index[i]]);
-			}
-			puts("Files deleted.");
-		} else
-			puts("Aborted.");
-		
-	}
 }
 
 char
@@ -152,6 +81,81 @@ get_dir(char *dir) {
 			die("Note not written. Filepath nonexistent.");
 	}
 	chdir(dir);
+}
+
+void
+write_note(char *note, char *editor) {
+	char com[50];
+	
+	snprintf(com, sizeof(com), "%s %s", editor, note);
+	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
+}
+
+void
+list_notes() {
+	int i, n;
+	char *f, file[50];
+	struct dirent **namelist;
+	
+	f = getenv("HOME");
+	strlcpy(file, f, sizeof(file));
+	if(strlcat(file, NOTES_DIR, sizeof(file)) >= sizeof(file))
+		die("File path truncated.");
+	
+	n = scandir(file, &namelist, 0, alphasort);
+	if(n < 0) 
+		die("Couldn't open ~/notes directory.");
+	 else {
+		for(i = 0; i < n; i++) {
+			if(namelist[i]->d_name[0] != '.') {
+				printf("%s\n", namelist[i]->d_name);
+				free(namelist[i]);
+			}
+		}
+	}
+	free(namelist);
+}
+
+void
+delete_note(int count, char *target[]) { 
+	int c, i, k = 0;
+	int target_index[20] = {};
+		
+	for(c = 2; c < count; c++) {
+		FILE *fp;
+		char path[75];
+		
+		get_dir(path);
+		strlcat(path, target[c], 75);
+		
+		/* 
+		*  If target file exists, store its argv number in target_index array.
+		*/
+		if((fp = fopen(path, "r")) != NULL) {
+			target_index[k] = c;
+			k++;
+		} else 
+			printf("***No such file:\t%s\n", target[c]);
+	}
+	
+	/*
+	*  Print target files by referencing their index value
+	*  as stored in target_index[]
+	*/
+	if(target_index[0] != 0) {
+		puts("Files to be deleted:");
+		for(i = 0; target_index[i] != '\0'; i++) {
+			printf("-> %s\n", target[target_index[i]]);
+		}
+		puts("Confirm delete? (Upper-case \'Y\')");
+		if(getchar() == 'Y') {
+			for(i = 0; target_index[i] != '\0'; i++) 
+				remove(target[target_index[i]]);
+				
+			puts("Files deleted.");
+		} else 
+			puts("Aborted.");
+	}
 }
 
 void
