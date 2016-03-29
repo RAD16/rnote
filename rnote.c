@@ -68,17 +68,9 @@ list_notes() {
 
 void
 delete_note(int count, char *target[]) { 
-	int c, k = 0;
+	int c, i, k = 0;
 	int kill_index[20] = {};
-	
-	void prompt(char q[]) {
-		/*char  ans = "";*/
-		printf("Delete note \"%s\"?\n", target[c]);
-		getc(stdin);
-		/*(ans == 'y') ? puts("File deleted.") : puts("Saving file.");*/
-	}
 		
-	puts("Confirm action:");
 	for(c = 2; c < count; c++) {
 		FILE *fp;
 		char path[75] = "";
@@ -88,12 +80,26 @@ delete_note(int count, char *target[]) {
 		if((fp = fopen(path, "r")) != NULL) {
 			kill_index[k] = c;
 			k++;
-		} else printf("No such file:\t%s\n", target[c]);
+		} else 
+			printf("No such file:\t%s\n", target[c]);
 	}
+	
 	puts("Files to be deleted:");
-	int i;
 	for(i = 0; kill_index[i] != '\0'; i++) {
 		printf("-> %s\n", target[kill_index[i]]);
+	}
+	if(kill_index[0] != 0) {
+		char ans;
+		puts("Delete selected files? (y/n)");
+		ans = getchar();
+		if(ans == 'y') {
+			for(i = 0; kill_index[i] != '\0'; i++) {
+				remove(target[kill_index[i]]);
+			}
+			puts("Files deleted.");
+		} else
+			puts("Aborted.");
+		
 	}
 }
 
