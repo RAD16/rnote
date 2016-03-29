@@ -73,10 +73,11 @@ delete_note(int count, char *target[]) {
 		
 	for(c = 2; c < count; c++) {
 		FILE *fp;
-		char path[75] = "";
-		get_dir(path);
+		char path[75];
 		
+		get_dir(path);
 		strlcat(path, target[c], 75);
+		
 		if((fp = fopen(path, "r")) != NULL) {
 			kill_index[k] = c;
 			k++;
@@ -84,15 +85,13 @@ delete_note(int count, char *target[]) {
 			printf("No such file:\t%s\n", target[c]);
 	}
 	
-	puts("Files to be deleted:");
-	for(i = 0; kill_index[i] != '\0'; i++) {
-		printf("-> %s\n", target[kill_index[i]]);
-	}
 	if(kill_index[0] != 0) {
-		char ans;
+		puts("Files to be deleted:");
+		for(i = 0; kill_index[i] != '\0'; i++) {
+			printf("-> %s\n", target[kill_index[i]]);
+		}
 		puts("Delete selected files? (y/n)");
-		ans = getchar();
-		if(ans == 'y') {
+		if(getchar() == 'y') {
 			for(i = 0; kill_index[i] != '\0'; i++) {
 				remove(target[kill_index[i]]);
 			}
@@ -232,6 +231,7 @@ main(int argc, char *argv[]) {
 				list_notes();
 				break;
 			case 'd':
+				if(!argv[2]) die("Please provide files for deletion.");
 				delete_note(argc, argv);
 				break;
 			case 'v':
