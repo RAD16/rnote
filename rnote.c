@@ -20,6 +20,8 @@
 #include <dirent.h>
 #include <errno.h>
 
+void get_dir(char *dir);
+
 #define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
 #define EDITOR "vis"		/* Text editor of choice */
 
@@ -62,6 +64,25 @@ list_notes() {
 		}
 	}
 	free(namelist);
+}
+
+void
+delete_note(int count, char *target[]) { 
+	int c;
+	
+	for(c = 2; c < count; c++) {
+		FILE *fp;
+		char  ans;
+		char path[75] = "";
+		get_dir(path);
+		
+		strlcat(path, target[c], 75);
+		if((fp = fopen(path, "r")) != NULL) {
+			printf("Delete note \"%s\"?\n", target[c]);
+			ans = getchar(); 
+			(ans == 'y') ? puts("File deleted.") : puts("Saving file.");
+		} else printf("No file called \"%s\" in ~/notes\n", target[c]);
+	}
 }
 
 char
@@ -179,7 +200,7 @@ main(int argc, char *argv[]) {
 	} else if(argc == 2 && argv[1][0] != '-') {
 		get_filename(file, argv[1]);
 		write_note(file, EDITOR);			
-	} else if(argc < 5 && argv[1][0] == '-') {
+	} else if(argv[1][0] == '-') {
 
 		char opt = argv[1][1];
 		switch(opt) {
@@ -191,6 +212,9 @@ main(int argc, char *argv[]) {
 			case 'l':
 				if(argv[2]) die("Option 'l' takes no arguments.");
 				list_notes();
+				break;
+			case 'd':
+				delete_note(argc, argv);
 				break;
 			case 'v':
 				if(argv[2]) die("Option 'v' takes no arguments.");
