@@ -20,8 +20,8 @@
 #include <dirent.h>
 #include <errno.h>
 
-#define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
-#define EDITOR "vis"		/* Text editor of choice */
+#define NOTES_DIR "/notes/"
+#define EDITOR "vis"
 
 static void
 die(const char *message) {
@@ -164,6 +164,8 @@ inline_note(char *file, size_t len, char *line) {
 	int i, n;
 	char *stamp;
 	char title[40], msg[70];
+	char *ptitle = title;
+	char *pline = line;
 
 	get_filename(file, NULL);
 	stamp = tstamp("%T");
@@ -179,10 +181,11 @@ inline_note(char *file, size_t len, char *line) {
 	*  Parse spaces to create note title
 	*  Title has 3 Words (n < 3) 
 	*/
+	printf("strlen(line): %d\n", strlen(line));
 	for(n = 0, i = 0; n < 3 && i < strlen(line); ++i) {
 		if(isspace(line[i])) 
 			++n;
-		title[i] = line[i];
+		*ptitle++ = *pline++;
 	}
 	
 	/* Terminate resulting string dynamically */
