@@ -23,7 +23,7 @@
 #define NOTES_DIR "/notes/" 	/* Directory where notes are stored */
 #define EDITOR "vis"		/* Text editor of choice */
 
-void
+static void
 die(const char *message) {
 	char buf[80];
 	snprintf(buf, sizeof(buf), "ERROR: %s\n", message);
@@ -31,7 +31,7 @@ die(const char *message) {
 	exit(1);
 }
 
-char
+static char
 *tstamp(const char *opt) {
 	struct tm *stmp;
 	char *stamp;
@@ -48,7 +48,7 @@ char
 	free(stamp);
 }
 
-void 
+static void 
 get_filename(char *path, char *filename) {
 	size_t len = 100;
 	char *name;
@@ -61,7 +61,7 @@ get_filename(char *path, char *filename) {
 	if(!filename) free(name);
 }
 
-void
+static void
 get_dir(char *dir) {
 	size_t len = 100;	
 	char *home;
@@ -83,7 +83,7 @@ get_dir(char *dir) {
 	chdir(dir);
 }
 
-void
+static void
 write_note(char *note) {
 	char com[50];
 	
@@ -91,7 +91,7 @@ write_note(char *note) {
 	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
 }
 
-void
+static void
 list_notes() {
 	int i, n;
 	char *f, file[50];
@@ -116,7 +116,7 @@ list_notes() {
 	free(namelist);
 }
 
-void
+static void
 delete_note(int count, char *target[]) { 
 	int c, i, k = 0;
 	int target_index[20] = {};
@@ -158,7 +158,7 @@ delete_note(int count, char *target[]) {
 	}
 }
 
-void
+static void
 inline_note(char *file, size_t len, char *line) {
 	FILE *bp;
 	int i, n;
