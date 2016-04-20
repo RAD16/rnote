@@ -154,8 +154,9 @@ delete_note(int count, char *target[])
 		if ((fp = fopen(path, "r"))) {
 			*ptg = c;
 			ptg++;
-		} else 
+		} else {
 			printf("***No such file:\t%s\n", tg[c]);
+		}
 	}
 	
 	/*
@@ -167,14 +168,14 @@ delete_note(int count, char *target[])
 		puts("Files to be deleted:");
 		for (; *ptg; ptg++) 
 			printf("-> %s\n", tg[*ptg]);
-		
 		puts("Confirm delete? (Upper-case \'Y\')");
 		if (getchar() == 'Y') {
 			for (ptg = targind; *ptg; ptg++)
 				remove(tg[*ptg]);
 			puts("Files deleted.");
-		} else 
+		} else {
 			puts("Aborted.");
+		}
 	}
 }
 
