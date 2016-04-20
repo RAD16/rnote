@@ -127,40 +127,44 @@ list_notes()
 static void
 delete_note(int count, char *target[]) 
 { 
-	int c, i, k = 0;
-	int target_index[20] = {};
+	int c, *ptg;
+	char **tg;
+	int targind[20] = {};
 		
+	tg = target;
+	ptg = targind;
+	
 	for (c = 2; c < count; c++) {
 		FILE *fp;
 		char path[75];
 		
 		get_dir(path);
-		strlcat(path, target[c], 75);
+		strlcat(path, tg[c], 75);
 		
 		/* 
-		*  If target file exists, store its argv number in target_index array.
+		*  If target file exists, store its argv number in targind array.
 		*/
-		if ((fp = fopen(path, "r")) != NULL) {
-			target_index[k] = c;
-			k++;
+		if ((fp = fopen(path, "r"))) {
+			*ptg = c;
+			ptg++;
 		} else 
-			printf("***No such file:\t%s\n", target[c]);
+			printf("***No such file:\t%s\n", tg[c]);
 	}
 	
 	/*
 	*  Print target files by referencing their index value
-	*  as stored in target_index[]
+	*  as stored in targind[]
 	*/
-	if (target_index[0] != 0) {
+	ptg = targind;
+	if (*ptg) {
 		puts("Files to be deleted:");
-		for (i = 0; target_index[i] != '\0'; i++) {
-			printf("-> %s\n", target[target_index[i]]);
-		}
+		for (; *ptg; ptg++) 
+			printf("-> %s\n", tg[*ptg]);
+		
 		puts("Confirm delete? (Upper-case \'Y\')");
 		if (getchar() == 'Y') {
-			for (i = 0; target_index[i] != '\0'; i++) 
-				remove(target[target_index[i]]);
-				
+			for (ptg = targind; *ptg; ptg++)
+				remove(tg[*ptg]);
 			puts("Files deleted.");
 		} else 
 			puts("Aborted.");
@@ -179,7 +183,9 @@ inline_note(char *file, size_t len, char *line)
 	pline = line;
 
 	get_filename(file, NULL);
+	
 	stamp = tstamp("%T");
+	
 	bp = fopen(file, "a+");
 	if (!bp) 
 		die("Couldn't open file.");
@@ -199,7 +205,7 @@ inline_note(char *file, size_t len, char *line)
 	}
 	
 	/* Terminate resulting string dynamically */
-	title[i - ((n == 3) ? 1:0)] = '\0';
+	title[i - ((n == 3) ? 1 : 0)] = '\0';
 
 	if (strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
