@@ -24,11 +24,13 @@
 #define EDITOR "vis"
 
 static void
-die(const char *message) 
+die(const char *msg) 
 {
-	char buf[80];
-	snprintf(buf, sizeof(buf), "ERROR: %s\n", message);
-	fputs(buf, stderr);
+	if (errno) 
+		perror(msg);
+	else
+		printf("ERROR: %s\n", msg);
+	
 	exit(1);
 }
 
@@ -97,6 +99,7 @@ static void
 write_note(char *note) 
 {
 	char com[50];
+	printf("Sizeof(com): %d\n", sizeof(com));
 	
 	snprintf(com, sizeof(com), "%s %s", EDITOR, note);
 	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
