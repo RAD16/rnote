@@ -73,20 +73,24 @@ get_dir(char *dir)
 	char *home;
 	
 	home = getenv("HOME");
+	if (!home)
+		die("Couldn't retrieve ~/home path.");
+		
 	if (!snprintf(dir, len, "%s%s", home, NOTES_DIR))
 		die("Couldn't create path to ~/notes directory.");
 
 	if (!opendir(dir)) {
 		puts("ERROR:Could not open ~/notes/ directory.\n"
 			"Should we create it? (y/n)");
-		char ans[1];
-		ans[0] = fgetc(stdin);
-		if (ans[0] == 'y')  
+		char ans;
+		ans = fgetc(stdin);
+		if (ans == 'y')  
 			mkdir(dir, 0750);
 		else 
 			die("Note not written. Filepath nonexistent.");
 	}
-	chdir(dir);
+	if (chdir(dir) != 0)
+		die("Couldn't change into ~/home directory.");
 }
 
 static void
@@ -106,7 +110,9 @@ list_notes()
 	struct dirent **namelist;
 	
 	f = getenv("HOME");
-	strlcpy(file, f, sizeof(file));
+	if (strlcpy(file, f, sizeof(file)) >= sizeof(file))
+		die("Couldn't initiate filepath.");
+		
 	if (strlcat(file, NOTES_DIR, sizeof(file)) >= sizeof(file))
 		die("File path truncated.");
 	
@@ -139,7 +145,8 @@ delete_note(int count, char *target[])
 		char path[75];
 		
 		get_dir(path);
-		strlcat(path, tg[c], 75);
+		if (strlcat(path, tg[c], 75) >= 75)
+			die("Truncation occured catting delete targ to path.");
 		
 		/* 
 		*  If target file exists, store its argv number in targind array.
@@ -177,10 +184,10 @@ inline_note(char *file, size_t len, char *line)
 	FILE *bp;
 	int i, n;
 	char title[40], msg[70];
-	char *stamp, *ptitle, *pline;
+	char *stamp, *pt, *pl;
 	
-	ptitle = title;
-	pline = line;
+	pt = title;
+	pl = line;
 
 	get_filename(file, NULL);
 	
@@ -201,7 +208,7 @@ inline_note(char *file, size_t len, char *line)
 	for (n = 0, i = 0; n < 3 && i < strlen(line); ++i) {
 		if (isspace(line[i])) 
 			++n;
-		*ptitle++ = *pline++;
+		*pt++ = *pl++;
 	}
 	
 	/* Terminate resulting string dynamically */
@@ -233,6 +240,7 @@ main(int argc, char *argv[])
 	} else if (argc == 2 && argv[1][0] != '-') {
 		get_filename(file, argv[1]);
 		write_note(file);			
+		
 	} else if (argv[1][0] == '-') {
 
 		char opt = argv[1][1];
