@@ -73,27 +73,28 @@ get_filename(char *path, char *name)
 static void
 get_dir(char *dir) 
 {
-	size_t len = 100;	
-	char *home;
+	char *home, *pdir[100];
+	
+	*pdir = dir;
 	
 	home = getenv("HOME");
 	if (!home)
 		die("Couldn't retrieve ~/home path.");
 		
-	if (!snprintf(dir, len, "%s%s", home, NOTES_DIR))
+	if (!snprintf(*pdir, sizeof(pdir), "%s%s", home, NOTES_DIR))
 		die("Couldn't create path to ~/notes directory.");
 
-	if (!opendir(dir)) {
+	if (!opendir(*pdir)) {
 		puts("ERROR:Could not open ~/notes/ directory.\n"
 			"Should we create it? (y/n)");
 		char ans;
 		ans = fgetc(stdin);
 		if (ans == 'y')  
-			mkdir(dir, 0750);
+			mkdir(*pdir, 0750);
 		else 
 			die("Note not written. Filepath nonexistent.");
 	}
-	if (chdir(dir) != 0)
+	if (chdir(*pdir) != 0)
 		die("Couldn't change into ~/home directory.");
 }
 
