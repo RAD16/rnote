@@ -61,7 +61,7 @@ get_filename(char *p, char *filename)
 	
 	*path = p;
 	name = filename ?: tstamp("%Y-%m-%d");
-
+	
 	if (strlcat(*path, name, sizeof(path)) >= sizeof(path))
 		die("Unable to complete file path.");
 	else	
@@ -99,11 +99,16 @@ get_dir(char *dir)
 }
 
 static void
-write_note(char *note) 
+write_note(char *path) 
 {
-	char com[50];
+	char com[100];
+	size_t plen = (strlen(EDITOR) + strlen(path) + 1);
+
+	if (plen > sizeof(com))
+		die("File path has been truncated. The name is probably too long.");
 	
-	snprintf(com, sizeof(com), "%s %s", EDITOR, note);
+	snprintf(com, sizeof(com), "%s %s", EDITOR, path);
+	
 	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
 }
 
