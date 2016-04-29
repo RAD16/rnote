@@ -61,7 +61,7 @@ get_filename(char *path, char *filename)
 
 	name = filename ?: tstamp("%Y-%m-%d");
 
-	if (strlcat(path, name, len) > len)
+	if (strlcat(path, name, len) >= len)
 		die("Unable to complete file path.");
 	
 	if (!filename) 
@@ -136,12 +136,12 @@ list_notes()
 static void
 delete_note(int count, char *target[]) 
 { 
-	int c, *ptg;
+	int c, *pta;
 	char **tg;
-	int targind[20] = {};
+	int targarray[20] = {};
 		
 	tg = target;
-	ptg = targind;
+	pta = targarray;
 	
 	for (c = 2; c < count; c++) {
 		FILE *fp;
@@ -149,14 +149,14 @@ delete_note(int count, char *target[])
 		
 		get_dir(path);
 		if (strlcat(path, tg[c], 75) >= 75)
-			die("Truncation occured catting delete targ to path.");
+			die("Truncation occured catting delete target onto path.");
 		
 		/* 
-		*  If target file exists, store its argv number in targind array.
+		*  If target file exists, store its argv number in targarray.
 		*/
 		if ((fp = fopen(path, "r"))) {
-			*ptg = c;
-			ptg++;
+			*pta = c;
+			pta++;
 		} else {
 			printf("***No such file:\t%s\n", tg[c]);
 		}
@@ -164,17 +164,17 @@ delete_note(int count, char *target[])
 	
 	/*
 	*  Print target files by referencing their index value
-	*  as stored in targind[]
+	*  as stored in targarray[]
 	*/
-	ptg = targind;
-	if (*ptg) {
+	pta = targarray;
+	if (*pta) {
 		puts("Files to be deleted:");
-		for (; *ptg; ptg++) 
-			printf("-> %s\n", tg[*ptg]);
+		for (; *pta; pta++) 
+			printf("-> %s\n", tg[*pta]);
 		puts("Confirm delete? (Upper-case \'Y\')");
 		if (getchar() == 'Y') {
-			for (ptg = targind; *ptg; ptg++)
-				remove(tg[*ptg]);
+			for (pta = targarray; *pta; pta++)
+				remove(tg[*pta]);
 			puts("Files deleted.");
 		} else {
 			puts("Aborted.");
@@ -186,8 +186,8 @@ static void
 inline_note(char *file, size_t len, char *line) 
 {
 	FILE *bp;
-	int i, n;
-	char title[40], msg[70];
+	int i, n = 0;
+	char title[70], msg[70];
 	char *stamp, *pt, *pl;
 	
 	pt = title;
@@ -209,14 +209,17 @@ inline_note(char *file, size_t len, char *line)
 	*  Parse spaces to create note title
 	*  Title has 3 Words (n < 3) 
 	*/
-	for (n = 0, i = 0; n < 3 && i < strlen(line); ++i) {
-		if (isspace(line[i])) 
-			++n;
+
+	i = strlen(line);
+	while (n < 3 && i--) {
+		if (isspace(*line++))
+			n++;
 		*pt++ = *pl++;
 	}
 	
-	/* Terminate resulting string dynamically */
-	title[i - ((n == 3) ? 1 : 0)] = '\0';
+	/*  If we count 3 spaces, the NULL goes at *(pt - 1), else at *pt */
+	pt[(n == 3) ? -1 : 0] = '\0';
+	
 
 	if (strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
