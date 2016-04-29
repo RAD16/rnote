@@ -55,20 +55,17 @@ static char
 }
 
 static void 
-get_filename(char *path, char *filename) 
+get_filename(char *p, char *filename) 
 {
-	size_t len = 100;
-	char *name;
+	char *name, *path[100];
 	
-	/*
-	 * Bug: len could be larger than path .
-	 *  - malloc 100 for path ptr, then sizeof(path)
-	 */
-
+	*path = p;
 	name = filename ?: tstamp("%Y-%m-%d");
 
-	if (strlcat(path, name, len) >= len)
+	if (strlcat(*path, name, sizeof(path)) >= sizeof(path))
 		die("Unable to complete file path.");
+	else	
+		p = *path;
 	
 	if (!filename) 
 		free(name);
