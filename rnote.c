@@ -187,7 +187,7 @@ inline_note(char *file, size_t len, char *line)
 {
 	FILE *bp;
 	int i, n = 0;
-	char title[70], msg[70];
+	char title[100], msg[100];
 	char *stamp, *pt, *pl;
 	
 	pt = title;
