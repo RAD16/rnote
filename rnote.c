@@ -151,9 +151,7 @@ delete_note(int count, char *target[])
 		if (strlcat(path, tg[c], 75) >= 75)
 			die("Truncation occured catting delete target onto path.");
 		
-		/* 
-		*  If target file exists, store its argv number in targarray.
-		*/
+		/*  If target exists, store its argv index in targarray. */
 		if ((fp = fopen(path, "r")))
 			*pta++ = c;
 		else
@@ -161,10 +159,7 @@ delete_note(int count, char *target[])
 		
 	}
 	
-	/*
-	*  Print target files by referencing their index value
-	*  as stored in targarray[]
-	*/
+	/*  Print targets via their index value stored in targarray */
 	pta = targarray;
 	if (*pta) {
 		puts("Files to be deleted:");
@@ -206,7 +201,7 @@ inline_note(char *file, size_t len, char *line)
 	
 	/*
 	*  Parse spaces to create note title
-	*  Title has 3 Words (n < 3) 
+	*  Title has 3 Words maximum (n < 3) 
 	*/
 
 	i = strlen(line);
