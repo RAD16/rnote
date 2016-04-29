@@ -77,6 +77,7 @@ get_dir(char *dir)
 	
 	*pdir = dir;
 	
+	
 	home = getenv("HOME");
 	if (!home)
 		die("Couldn't retrieve ~/home path.");
@@ -143,26 +144,28 @@ list_notes()
 static void
 delete_note(int count, char *target[]) 
 { 
-	int c, *pta;
+	int i, *pta;
 	char **tg;
 	int targarray[20] = {};
 		
 	tg = target;
 	pta = targarray;
 	
-	for (c = 2; c < count; c++) {
+	for (i = 1; --count; i++) {
 		FILE *fp;
 		char path[75];
 		
-		get_dir(path);
-		if (strlcat(path, tg[c], sizeof(path)) >= sizeof(path))
-			die("Truncation occured catting delete target onto path.");
-		
-		/*  If target exists, store its argv index in targarray. */
-		if ((fp = fopen(path, "r")))
-			*pta++ = c;
-		else
-			printf("***No such file:\t%s\n", tg[c]);
+		if (tg[i][0] != '-') {
+			get_dir(path);
+			if (strlcat(path, tg[i], sizeof(path)) >= sizeof(path))
+				die("Truncation occured catting delete target onto path.");
+			
+			/*  If target exists, store its argv index in targarray. */
+			if ((fp = fopen(path, "r")))
+				*pta++ = i;
+			else
+				printf("***No such file:\t%s\n", tg[i]);
+		}
 	}
 	
 	/*  Print targets via their index value stored in targarray */
@@ -171,6 +174,7 @@ delete_note(int count, char *target[])
 		puts("Files to be deleted:");
 		for (; *pta; pta++) 
 			printf("-> %s\n", tg[*pta]);
+			
 		puts("Confirm delete? (Upper-case \'Y\')");
 		if (getchar() == 'Y') {
 			for (pta = targarray; *pta; pta++)
@@ -179,7 +183,8 @@ delete_note(int count, char *target[])
 		} else {
 			puts("Aborted.");
 		}
-	}
+	} else 
+		puts("No files to delete.");
 }
 
 static void
@@ -234,45 +239,47 @@ inline_note(char *file, size_t len, char *line)
 int
 main(int argc, char *argv[]) 
 {
-	char file[100];
+	char file[100], **arg;
+	int i;
+	
 	get_dir(file);
+	
+	arg = argv;
 
 	if (argc == 1) {
 		get_filename(file, NULL);	
-		write_note(file);			
-
-	} else if (argc == 2 && strstr(argv[1], " ")) {
-		inline_note(file, sizeof(file), argv[1]);
-
-	} else if (argc == 2 && argv[1][0] != '-') {
-		get_filename(file, argv[1]);
-		write_note(file);			
+		write_note(file);	
+	} else {
+		for (i = 1; i < argc; i++) {
+			if (arg[i][0] == '-') {
+				switch (arg[i][1]) {
+					case 'l':
+						if (arg[2]) 
+							puts("-> Ignoring unnecessary arguments.");
+						list_notes();
+						return 0;
+					case 'd':
+						if (!arg[2]) 
+							die("Please provide files for deletion.");
+						delete_note(argc, arg);
+						return 0;
+					case 'v':
+						printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
+						return 0;
+					default :
+						puts("Not an option. Try again.");
+						return 0;
+				}
 		
-	} else if (argv[1][0] == '-') {
-
-		char opt = argv[1][1];
-		switch (opt) {
-			case 'l':
-				if (argv[2]) 
-					die("Option 'l' takes no arguments.");
-				list_notes();
-				break;
-			case 'd':
-				if (!argv[2]) 
-					die("Please provide files for deletion.");
-				delete_note(argc, argv);
-				break;
-			case 'v':
-				if (argv[2]) 
-					die("Option 'v' takes no arguments.");
-				printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
-				break;
-			default :
-				puts("Not an option. Try again.");
-				break;
+			} else if (argc == 2) {
+				if (strstr(argv[1], " ")) {
+					inline_note(file, sizeof(file), argv[1]);
+				} else {
+					get_filename(file, argv[1]);
+					write_note(file);			
+				}
+			}
 		}
-	} else 
-		die("Too many arguments.");
-
+	}
 	return 0;
 }
