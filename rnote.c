@@ -154,12 +154,11 @@ delete_note(int count, char *target[])
 		/* 
 		*  If target file exists, store its argv number in targarray.
 		*/
-		if ((fp = fopen(path, "r"))) {
-			*pta = c;
-			pta++;
-		} else {
+		if ((fp = fopen(path, "r")))
+			*pta++ = c;
+		else
 			printf("***No such file:\t%s\n", tg[c]);
-		}
+		
 	}
 	
 	/*
