@@ -22,6 +22,7 @@
 
 #define NOTES_DIR "/notes/"
 #define EDITOR "vis"
+#define STAMP_SIZ 21
 
 static void
 die(const char *msg) 
@@ -47,7 +48,7 @@ static char
 	if (!stamp) 
 		die("Memory error.");
 
-	strftime(stamp, 21, opt, stmp);
+	strftime(stamp, STAMP_SIZ, opt, stmp);
 
 	return stamp;
 	free(stamp);
@@ -58,6 +59,11 @@ get_filename(char *path, char *filename)
 {
 	size_t len = 100;
 	char *name;
+	
+	/*
+	 * Bug: len could be larger than path .
+	 *  - malloc 100 for path ptr, then sizeof(path)
+	 */
 
 	name = filename ?: tstamp("%Y-%m-%d");
 
@@ -99,7 +105,6 @@ static void
 write_note(char *note) 
 {
 	char com[50];
-	printf("Sizeof(com): %d\n", sizeof(com));
 	
 	snprintf(com, sizeof(com), "%s %s", EDITOR, note);
 	execl("/bin/sh", "sh", "-c", com, (char *)NULL);
@@ -148,7 +153,7 @@ delete_note(int count, char *target[])
 		char path[75];
 		
 		get_dir(path);
-		if (strlcat(path, tg[c], 75) >= 75)
+		if (strlcat(path, tg[c], sizeof(path)) >= sizeof(path))
 			die("Truncation occured catting delete target onto path.");
 		
 		/*  If target exists, store its argv index in targarray. */
@@ -156,7 +161,6 @@ delete_note(int count, char *target[])
 			*pta++ = c;
 		else
 			printf("***No such file:\t%s\n", tg[c]);
-		
 	}
 	
 	/*  Print targets via their index value stored in targarray */
