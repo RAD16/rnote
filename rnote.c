@@ -31,7 +31,6 @@ die(const char *msg)
 		perror(msg);
 	else
 		printf("ERROR: %s\n", msg);
-	
 	exit(1);
 }
 
@@ -45,30 +44,30 @@ static char
 	time(&ts);
 	stmp = localtime(&ts);
 	stamp = malloc(21 * sizeof(char));
-	if (!stamp) 
+	if (stamp) 
+		strftime(stamp, STAMP_SIZ, opt, stmp);
+	else
 		die("Memory error.");
-
-	strftime(stamp, STAMP_SIZ, opt, stmp);
 
 	return stamp;
 	free(stamp);
 }
 
 static void 
-get_filename(char *p, char *filename) 
+get_filename(char *path, char *name) 
 {
-	char *name, *path[100];
+	char *pn, *pp[100];
 	
-	*path = p;
-	name = filename ?: tstamp("%Y-%m-%d");
+	*pp = path;
+	pn = name ?: tstamp("%Y-%m-%d");
 	
-	if (strlcat(*path, name, sizeof(path)) >= sizeof(path))
-		die("Unable to complete file path.");
+	if (strlcat(*pp, pn, sizeof(pp)) >= sizeof(pp))
+		die("Unable to add file name to path.");
 	else	
-		p = *path;
+		path = *pp;
 	
-	if (!filename) 
-		free(name);
+	if (!name) 
+		free(pn);
 }
 
 static void
