@@ -240,7 +240,7 @@ int
 main(int argc, char *argv[]) 
 {
 	int i;
-	char file[100];
+	char file[100], opt = '\0';
 	
 	get_dir(file);
 	
@@ -251,33 +251,44 @@ main(int argc, char *argv[])
 	} 
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
-			switch (argv[i][1]) {
-				case 'l':
-					if (argv[2]) 
-						puts("-> Ignoring unnecessary arguments.");
-					list_notes();
-					return 0;
-				case 'd':
-					if (!argv[2]) 
-						die("Please provide files for deletion.");
-					delete_note(argc, argv);
-					return 0;
-				case 'v':
-					printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
-					return 0;
-				default :
-					puts("Not an option. Try again.");
-					return 0;
-			}
-	
+			opt = argv[i][1];
+			break;
 		} else if (argc == 2) {
-			if (strstr(argv[1], " ")) {
-				inline_note(file, sizeof(file), argv[1]);
-			} else {
-				get_filename(file, argv[1]);
-				write_note(file);			
-			}
+			if (strstr(argv[1], " ")) 
+				opt = 'i';
+			else 
+				opt = 't';
 		}
+	}
+			
+	switch (opt) {
+		case 'l':
+			if (argv[2]) 
+				puts("-> Ignoring unnecessary arguments.");
+			list_notes();
+			break;
+		case 'd':
+			if (!argv[2]) 
+				die("Please provide files for deletion.");
+			delete_note(argc, argv);
+			break;
+		case 'v':
+			printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
+			break;
+		case 'i':
+			if (argv[1][1] == 'i')
+				die("Not an option. Try again.");
+			inline_note(file, sizeof(file), argv[1]);
+			break;
+		case 't':	/* titled note: first argument is the title */
+			if (argv[1][1] == 't')
+				die("Not an option. Try again.");
+			get_filename(file, argv[1]);
+			write_note(file);			
+			break;
+		default :
+			puts("Not an option. Try again.");
+			break;
 	}
 	return 0;
 }
