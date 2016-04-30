@@ -239,9 +239,7 @@ inline_note(char *file, size_t len, char *line)
 int
 main(int argc, char *argv[]) 
 {
-	int i = 1, c = argc - 1;
 	char file[100], opt = '\0';
-	
 	get_dir(file);
 	
 	if (argc == 1) {
@@ -250,28 +248,29 @@ main(int argc, char *argv[])
 		return 0;
 	} 
 
-	while (c-- && opt == '\0') {
-		if (argv[i][0] == '-')
+	int i;
+	for (i = 1; i < argc && opt == '\0'; i++)
+		if (argv[i][0] == '-' && argv[i][1])
 			opt = argv[i][1];
-		i++;
-	}
 	
 	if (!opt) {
-		if( argc > 2)
-			puts("Ignoring extra arguments.");
+		if( argc > 2) 
+			puts("***Ignoring extra arguments.");
+			
 		if (strstr(argv[1], " ")) {
 			inline_note(file, sizeof(file), argv[1]);
-			return 0;
-		} else {
+		} else if (argv[1][0] != '-') {
 			get_filename(file, argv[1]);
 			write_note(file);			
-			return 0;
+		} else {
+			die("Empty option flag.");		
 		}
+		return 0;
 	} else {
 		switch (opt) {
 			case 'l':
 				if (argv[2]) 
-					puts("***Ignoring unnecessary arguments.");
+					puts("***Ignoring extra arguments.");
 				list_notes();
 				break;
 			case 'd':
@@ -280,10 +279,12 @@ main(int argc, char *argv[])
 				delete_note(argc, argv);
 				break;
 			case 'v':
+				if (argv[2]) 
+					puts("***Ignoring extra arguments.");
 				printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
 				break;
 			default :
-				puts("Not an option. Try again.");
+				puts("Not a valid option.");
 				break;
 		}
 	}
