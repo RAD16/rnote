@@ -241,17 +241,18 @@ main(int argc, char *argv[])
 {
 	int i;
 	char file[100], opt = '\0';
+
 	get_dir(file);
 	
+	for (i = 1; i < argc && opt == '\0'; i++)
+		if (argv[i][0] == '-' && argv[i][1])
+			opt = argv[i][1];
+
 	if (argc == 1) {
 		get_filename(file, NULL);	
 		write_note(file);	
 		return 0;
 	} 
-
-	for (i = 1; i < argc && opt == '\0'; i++)
-		if (argv[i][0] == '-' && argv[i][1])
-			opt = argv[i][1];
 	
 	if (!opt) {
 		if( argc > 2) 
