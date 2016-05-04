@@ -7,7 +7,7 @@
 *
 */
 
-#define VERSION "rnote-0.3" 
+#define VERSION "rnote-0.4" 
 #define YEAR "2016" 
 
 #include <stdio.h>
@@ -53,6 +53,20 @@ static char
 	free(stamp);
 }
 
+static void
+get_dir(char *dir) 
+{
+	char *dirp[100];
+	
+	*dirp = dir;
+		
+	if (!snprintf(*dirp, sizeof(dirp), "%s%s", getenv("HOME"), NOTES_DIR))
+		die("Couldn't create path to ~/notes directory.");
+
+	if (chdir(*dirp) != 0)
+		die("Couldn't change into ~/home directory.");
+}
+
 static void 
 get_filename(char *path, char *name) 
 {
@@ -60,6 +74,8 @@ get_filename(char *path, char *name)
 	
 	*pathp = path;
 	namep = (name) ?:timestamp("%Y-%m-%d");
+	
+	get_dir(path);
 
 	if (strlcat(*pathp, namep, sizeof(pathp)) >= sizeof(pathp))
 		die("Unable to add file name to path.");
@@ -70,42 +86,17 @@ get_filename(char *path, char *name)
 		free(namep);
 }
 
-static void
-get_dir(char *dir) 
-{
-	char *home, *dirp[100];
-	
-	*dirp = dir;
-	
-	home = getenv("HOME");
-	if (!home)
-		die("Couldn't retrieve ~/home path.");
-		
-	if (!snprintf(*dirp, sizeof(dirp), "%s%s", home, NOTES_DIR))
-		die("Couldn't create path to ~/notes directory.");
-
-	if (!opendir(*dirp)) {
-		puts("ERROR:Could not open ~/notes/ directory.\n"
-			"Should we create it? (y/n)");
-		char ans;
-		ans = fgetc(stdin);
-		if (ans == 'y')  
-			mkdir(*dirp, 0750);
-		else 
-			die("Note not written. Filepath nonexistent.");
-	}
-	if (chdir(*dirp) != 0)
-		die("Couldn't change into ~/home directory.");
-}
 
 static void
-write_note(char *path) 
+write_note(char *path, char *name) 
 {
 	char com[100];
 	size_t len = (strlen(EDITOR) + strlen(path) + 1);
 
+	get_filename(path, name);
+
 	if (len > sizeof(com))
-		puts("WARNING:File path has been truncated. The name is probably too long.");
+		puts("WARNING:Filepath truncated. Filename likely too long.");
 	
 	snprintf(com, sizeof(com), "%s %s", EDITOR, path);
 	
@@ -116,16 +107,11 @@ static void
 list_notes() 
 {
 	int n;
-	char *f, file[50];
+	char file[50];
 	struct dirent **namelist;
 	
-	f = getenv("HOME");
-	if (strlcpy(file, f, sizeof(file)) >= sizeof(file))
-		die("Couldn't initiate filepath.");
-		
-	if (strlcat(file, NOTES_DIR, sizeof(file)) >= sizeof(file))
-		die("File path truncated.");
-	
+	get_dir(file);
+
 	n = scandir(file, &namelist, 0, alphasort);
 	if (n < 0)
 		die("Couldn't open ~/notes directory.");
@@ -142,21 +128,21 @@ list_notes()
 static void
 delete_note(int count, char *target[]) 
 { 
-	int i = 0, *tap, c;
+	int i, c, *tap;
 	char **tp;
 	int tarray[20] = {};
 		
 	tp = target;
 	tap = tarray;
 	
-	while (--count) {
+	for (i = 1; --count; i++) {
 		FILE *fp;
 		char path[75];
 		
 		if (tp[i][0] != '-') {
 			get_dir(path);
 			if (strlcat(path, tp[i], sizeof(path)) >= sizeof(path))
-				die("Truncation occured catting delete target onto path.");
+				die("Truncated path to deletion target.");
 			
 			/*  If target exists, store its argv index in tarray. */
 			if ((fp = fopen(path, "r")))
@@ -164,7 +150,6 @@ delete_note(int count, char *target[])
 			else
 				printf("***No such file:\t%s\n", tp[i]);
 		}
-		i++;
 	}
 	
 	/*  Print targets via their index value stored in tarray */
@@ -224,7 +209,8 @@ inline_note(char *file, size_t len, char *line)
 	if (strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
 	} else	{
-		snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
+		snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s",
+			 title, file);
 		puts(msg);
 	}
 	
@@ -237,45 +223,43 @@ main(int argc, char *argv[])
 	int i;
 	char file[100], opt = '\0';
 
-	get_dir(file);
-	
 	for (i = 1; i < argc && opt == '\0'; i++)
 		if (argv[i][0] == '-' && argv[i][1])
 			opt = argv[i][1];
 
 	if (argc == 1) {
-		get_filename(file, NULL);	
-		write_note(file);	
+		write_note(file, NULL);	
 		return 0;
 	} 
 	
 	if (!opt) {
 		if( argc > 2) 
-			puts("***Ignoring extra arguments.");
+			printf("***Ignoring extra arguments.");
 			
 		if (strstr(argv[1], " ")) {
 			inline_note(file, sizeof(file), argv[1]);
 		} else if (argv[1][0] != '-') {
-			get_filename(file, argv[1]);
-			write_note(file);			
+			write_note(file, argv[1]);			
 		} else
 			die("Empty option flag.");		
 	} else {
 		switch (opt) {
 			case 'l':
 				if (argv[2]) 
-					puts("***Ignoring extra arguments.");
+					printf("Running option \'-%c\'. ", opt);
+					puts("Ignoring other arguments.");
 				list_notes();
 				break;
 			case 'd':
 				if (!argv[2]) 
 					die("Please provide files for deletion.");
-				delete_note(argc, ++argv);
+				delete_note(argc, argv);
 				break;
 			case 'v':
 				if (argv[2]) 
 					puts("***Ignoring extra arguments.");
-				printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
+				printf("%s, (c) %s Ryan Donnelly\n",
+					 VERSION, YEAR);
 				break;
 			default :
 				puts("Not a valid option.");
