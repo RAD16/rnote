@@ -239,6 +239,7 @@ inline_note(char *file, size_t len, char *line)
 int
 main(int argc, char *argv[]) 
 {
+	int i;
 	char file[100], opt = '\0';
 	get_dir(file);
 	
@@ -248,7 +249,6 @@ main(int argc, char *argv[])
 		return 0;
 	} 
 
-	int i;
 	for (i = 1; i < argc && opt == '\0'; i++)
 		if (argv[i][0] == '-' && argv[i][1])
 			opt = argv[i][1];
