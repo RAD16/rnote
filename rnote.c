@@ -35,7 +35,7 @@ die(const char *msg)
 }
 
 static char
-*tstamp(const char *opt) 
+*timestamp(const char *fmt) 
 {
 	struct tm *stmp;
 	char *stamp;
@@ -45,7 +45,7 @@ static char
 	stmp = localtime(&ts);
 	stamp = malloc(21 * sizeof(char));
 	if (stamp) 
-		strftime(stamp, STAMP_SIZ, opt, stmp);
+		strftime(stamp, STAMP_SIZ, fmt, stmp);
 	else
 		die("Memory error.");
 
@@ -56,46 +56,45 @@ static char
 static void 
 get_filename(char *path, char *name) 
 {
-	char *pn, *pp[100];
+	char *namep, *pathp[100];
 	
-	*pp = path;
-	pn = name ?: tstamp("%Y-%m-%d");
-	
-	if (strlcat(*pp, pn, sizeof(pp)) >= sizeof(pp))
+	*pathp = path;
+	namep = (name) ?:timestamp("%Y-%m-%d");
+
+	if (strlcat(*pathp, namep, sizeof(pathp)) >= sizeof(pathp))
 		die("Unable to add file name to path.");
 	else	
-		path = *pp;
+		path = *pathp;
 	
 	if (!name) 
-		free(pn);
+		free(namep);
 }
 
 static void
 get_dir(char *dir) 
 {
-	char *home, *pdir[100];
+	char *home, *dirp[100];
 	
-	*pdir = dir;
-	
+	*dirp = dir;
 	
 	home = getenv("HOME");
 	if (!home)
 		die("Couldn't retrieve ~/home path.");
 		
-	if (!snprintf(*pdir, sizeof(pdir), "%s%s", home, NOTES_DIR))
+	if (!snprintf(*dirp, sizeof(dirp), "%s%s", home, NOTES_DIR))
 		die("Couldn't create path to ~/notes directory.");
 
-	if (!opendir(*pdir)) {
+	if (!opendir(*dirp)) {
 		puts("ERROR:Could not open ~/notes/ directory.\n"
 			"Should we create it? (y/n)");
 		char ans;
 		ans = fgetc(stdin);
 		if (ans == 'y')  
-			mkdir(*pdir, 0750);
+			mkdir(*dirp, 0750);
 		else 
 			die("Note not written. Filepath nonexistent.");
 	}
-	if (chdir(*pdir) != 0)
+	if (chdir(*dirp) != 0)
 		die("Couldn't change into ~/home directory.");
 }
 
@@ -103,10 +102,10 @@ static void
 write_note(char *path) 
 {
 	char com[100];
-	size_t plen = (strlen(EDITOR) + strlen(path) + 1);
+	size_t len = (strlen(EDITOR) + strlen(path) + 1);
 
-	if (plen > sizeof(com))
-		die("File path has been truncated. The name is probably too long.");
+	if (len > sizeof(com))
+		puts("WARNING:File path has been truncated. The name is probably too long.");
 	
 	snprintf(com, sizeof(com), "%s %s", EDITOR, path);
 	
@@ -116,7 +115,7 @@ write_note(char *path)
 static void
 list_notes() 
 {
-	int i, n;
+	int n;
 	char *f, file[50];
 	struct dirent **namelist;
 	
@@ -128,15 +127,14 @@ list_notes()
 		die("File path truncated.");
 	
 	n = scandir(file, &namelist, 0, alphasort);
-	if (n < 0) {
+	if (n < 0)
 		die("Couldn't open ~/notes directory.");
-	} else {
-		for (i = 0; i < n; i++) {
-			if (namelist[i]->d_name[0] != '.') {
-				printf("%s\n", namelist[i]->d_name);
-				free(namelist[i]);
-			}
+	
+	while (n--) {
+		if ((*namelist)->d_name[0] != '.') {
+			printf("%s\n", (*namelist)->d_name);
 		}
+		namelist++;
 	}
 	free(namelist);
 }
@@ -144,42 +142,43 @@ list_notes()
 static void
 delete_note(int count, char *target[]) 
 { 
-	int i, *pta;
-	char **tg;
-	int targarray[20] = {};
+	int i, *tap;
+	char **tp;
+	int tarray[20] = {};
 		
-	tg = target;
-	pta = targarray;
+	tp = target;
+	tap = tarray;
 	
 	for (i = 1; --count; i++) {
 		FILE *fp;
 		char path[75];
 		
-		if (tg[i][0] != '-') {
+		if (tp[i][0] != '-') {
 			get_dir(path);
-			if (strlcat(path, tg[i], sizeof(path)) >= sizeof(path))
+			if (strlcat(path, tp[i], sizeof(path)) >= sizeof(path))
 				die("Truncation occured catting delete target onto path.");
 			
-			/*  If target exists, store its argv index in targarray. */
+			/*  If target exists, store its argv index in tarray. */
 			if ((fp = fopen(path, "r")))
-				*pta++ = i;
+				*tap++ = i;
 			else
-				printf("***No such file:\t%s\n", tg[i]);
+				printf("***No such file:\t%s\n", tp[i]);
 		}
 	}
 	
-	/*  Print targets via their index value stored in targarray */
-	pta = targarray;
-	if (*pta) {
+	/*  Print targets via their index value stored in tarray */
+	int c;
+	tap = tarray;
+	if (*tap) {
 		puts("Files to be deleted:");
-		for (; *pta; pta++) 
-			printf("-> %s\n", tg[*pta]);
+		for (c = 0; *tap; tap++, c++) 
+			printf("-> %s\n", tp[*tap]);
 			
 		puts("Confirm delete? (Upper-case \'Y\')");
 		if (getchar() == 'Y') {
-			for (pta = targarray; *pta; pta++)
-				remove(tg[*pta]);
-			puts("Files deleted.");
+			for (tap = tarray; *tap; tap++)
+				remove(tp[*tap]);
+			printf("File%s deleted.\n", (c > 1) ? "s" : "");
 		} else {
 			puts("Aborted.");
 		}
@@ -200,7 +199,7 @@ inline_note(char *file, size_t len, char *line)
 
 	get_filename(file, NULL);
 	
-	stamp = tstamp("%T");
+	stamp = timestamp("%T");
 	
 	bp = fopen(file, "a+");
 	if (!bp) 
@@ -214,17 +213,13 @@ inline_note(char *file, size_t len, char *line)
 	*  Parse spaces to create note title
 	*  Title has 3 Words maximum (n < 3) 
 	*/
-
-	i = strlen(line);
-	while (n < 3 && i--) {
-		if (isspace(*line++))
+	
+	for (i = strlen(line); n < 3 && i--; *pt++ = *pl++)
+		if (isspace((*line++)))
 			n++;
-		*pt++ = *pl++;
-	}
 	
 	/*  If we count 3 spaces, the NULL goes at *(pt - 1), else at *pt */
 	pt[(n == 3) ? -1 : 0] = '\0';
-	
 
 	if (strlen(title) > sizeof(title)) {
 		puts("Title bonked, but we recorded your note!");
