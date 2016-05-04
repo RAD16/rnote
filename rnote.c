@@ -262,10 +262,8 @@ main(int argc, char *argv[])
 		} else if (argv[1][0] != '-') {
 			get_filename(file, argv[1]);
 			write_note(file);			
-		} else {
+		} else
 			die("Empty option flag.");		
-		}
-		return 0;
 	} else {
 		switch (opt) {
 			case 'l':
