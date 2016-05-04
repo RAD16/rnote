@@ -142,14 +142,14 @@ list_notes()
 static void
 delete_note(int count, char *target[]) 
 { 
-	int i, *tap;
+	int i = 0, *tap, c;
 	char **tp;
 	int tarray[20] = {};
 		
 	tp = target;
 	tap = tarray;
 	
-	for (i = 1; --count; i++) {
+	while (--count) {
 		FILE *fp;
 		char path[75];
 		
@@ -164,10 +164,10 @@ delete_note(int count, char *target[])
 			else
 				printf("***No such file:\t%s\n", tp[i]);
 		}
+		i++;
 	}
 	
 	/*  Print targets via their index value stored in tarray */
-	int c;
 	tap = tarray;
 	if (*tap) {
 		puts("Files to be deleted:");
@@ -270,7 +270,7 @@ main(int argc, char *argv[])
 			case 'd':
 				if (!argv[2]) 
 					die("Please provide files for deletion.");
-				delete_note(argc, argv);
+				delete_note(argc, ++argv);
 				break;
 			case 'v':
 				if (argv[2]) 
