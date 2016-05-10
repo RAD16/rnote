@@ -132,7 +132,6 @@ delete_note(int count, char *target[])
 	int tarray[20] = {};
 	int *tap = tarray;
 		
-	
 	for (i = 1; --count; i++) {
 		FILE *fp;
 		char path[75];
