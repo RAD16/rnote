@@ -27,10 +27,7 @@
 static void
 die(const char *msg) 
 {
-	if (errno) 
-		perror(msg);
-	else
-		printf("ERROR: %s\n", msg);
+	errno ? perror(msg) : printf("ERROR: %s\n", msg);
 	exit(1);
 }
 
@@ -46,8 +43,7 @@ static char
 	stamp = malloc(21 * sizeof(char));
 	if (stamp) 
 		strftime(stamp, STAMP_SIZ, fmt, stmp);
-	else
-		die("Memory error.");
+	else die("Memory error.");
 
 	return stamp;
 	free(stamp);
@@ -216,6 +212,7 @@ main(int argc, char *argv[])
 	int i;
 	char file[100], opt = '\0';
 
+	/* check args for option flag, grab it if present */
 	for (i = 1; i < argc && opt == '\0'; i++)
 		if (argv[i][0] == '-' && argv[i][1])
 			opt = argv[i][1];
@@ -229,6 +226,7 @@ main(int argc, char *argv[])
 		if( argc > 2) 
 			printf("***Ignoring extra arguments.");
 			
+		/* spaces within argv[1] indicate a note to be appended */
 		if (strstr(argv[1], " ")) {
 			append_note(file, argv[1]);
 		} else if (argv[1][0] != '-') {
