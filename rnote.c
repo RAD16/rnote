@@ -172,33 +172,26 @@ delete_note(int count, char *target[])
 }
 
 static void
-inline_note(char *file, size_t len, char *line) 
+append_note(char *file, char *line) 
 {
 	FILE *bp;
 	int i, n = 0;
 	char title[100], msg[100];
-	char *stamp, *pt, *pl;
+	char *pt, *pl;
 	
 	pt = title;
 	pl = line;
 
 	get_filename(file, NULL);
 	
-	stamp = timestamp("%T");
-	
 	bp = fopen(file, "a+");
 	if (!bp) 
 		die("Couldn't open file.");
-
-	fprintf(bp, "\n\n%s \n", stamp);
+	
+	fprintf(bp, "\n\n%s \n", timestamp("%T"));
 	fprintf(bp, "%s", line);
-	free(stamp);
 	
-	/*
-	*  Parse spaces to create note title
-	*  Title has 3 Words maximum (n < 3) 
-	*/
-	
+	/* Parse spaces to create note title: 3 words max (n < 3) */
 	for (i = strlen(line); n < 3 && i--; *pt++ = *pl++)
 		if (isspace((*line++)))
 			n++;
@@ -237,7 +230,7 @@ main(int argc, char *argv[])
 			printf("***Ignoring extra arguments.");
 			
 		if (strstr(argv[1], " ")) {
-			inline_note(file, sizeof(file), argv[1]);
+			append_note(file, argv[1]);
 		} else if (argv[1][0] != '-') {
 			write_note(file, argv[1]);			
 		} else
