@@ -127,12 +127,13 @@ list_notes()
 static void
 delete_note(int count, char *target[]) 
 { 
-	int i, c;
+	int i = 0, c;
 	char **tp = target;
 	int tarray[20] = {};
 	int *tap = tarray;
 		
-	for (i = 1; --count; i++) {
+	while (--count) {
+		++i;
 		FILE *fp;
 		char path[75];
 		
