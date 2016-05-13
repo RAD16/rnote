@@ -108,20 +108,20 @@ list_notes()
 {
 	int n;
 	char file[50];
-	struct dirent **namelist;
+	struct dirent **d;
 	
 	get_dir(file);
 
-	n = scandir(file, &namelist, 0, alphasort);
+	n = scandir(file, &d, 0, alphasort);
 	if (n < 0)
 		die("Couldn't open ~/notes directory.", 1);
 	
 	while (n--) {
-		if ((*namelist)->d_name[0] != '.')
-			printf("%s\n", (*namelist)->d_name);
-		namelist++;
+		if ((*d)->d_name[0] != '.')
+			printf("%s\n", (*d)->d_name);
+		++d;
 	}
-	free(namelist);
+	free(d);
 }
 
 static void
