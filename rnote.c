@@ -35,22 +35,15 @@ die(const char *s, int eflag)
 	exit(1);
 }
 
-static char
-*timestamp(const char *fmt) 
+static void
+timestamp(char *s, const char *fmt) 
 {
 	struct tm *stmp;
-	char *stamp;
         time_t ts;
 
 	time(&ts);
 	stmp = localtime(&ts);
-	stamp = malloc(STAMP_SIZ * sizeof(char));
-	if (stamp) 
-		strftime(stamp, STAMP_SIZ, fmt, stmp);
-	else die("Memory error.", 1);
-
-	return stamp;
-	free(stamp);
+	strftime(s, STAMP_SIZ, fmt, stmp);
 }
 
 static void
@@ -70,9 +63,12 @@ get_dir(char *dir)
 static void 
 get_filename(char *path, char *name) 
 {
-	char *pathp[100];
-	char *namep = (name) ?:timestamp("%Y-%m-%d");
+	char *pathp[100], time[STAMP_SIZ];
+	char *namep;
 	
+	timestamp(time, "%Y-%m-%d");
+	
+	namep = (name) ?: time;
 	*pathp = path;
 	
 	get_dir(path);
@@ -174,17 +170,18 @@ append_note(char *file, char *s)
 {
 	FILE *fp;
 	int i, n = 0;
-	char title[100], msg[100];
+	char title[100], msg[100], time[STAMP_SIZ];
 	char *pt = title;
 	char *pl = s;
 
 	get_filename(file, NULL);
+	timestamp(time, "%T");
 	
 	fp = fopen(file, "a+");
 	if (!fp) 
 		die("Couldn't open file.", 1);
 	
-	fprintf(fp, "\n\n%s \n", timestamp("%T"));
+	fprintf(fp, "\n\n%s \n", time);
 	fprintf(fp, "%s", s);
 	
 	/* Parse spaces to create note title: 3 words max (n < 3) */
