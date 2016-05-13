@@ -21,17 +21,17 @@
 
 #define NOTES_DIR "/notes/"
 #define EDITOR "vis"
-#define STAMP_SIZ 21
+#define STAMP_SIZ 21 /* timestamp size */
 
 static void
-die(const char *msg, int eflag) 
+die(const char *s, int eflag) 
 {
 	if (!eflag)
-		puts(msg);
+		puts(s);
 	else if (errno)
-		perror(msg); 
+		perror(s); 
 	else
-		printf("ERROR: %s\n", msg);
+		printf("ERROR: %s\n", s);
 	exit(1);
 }
 
@@ -44,7 +44,7 @@ static char
 
 	time(&ts);
 	stmp = localtime(&ts);
-	stamp = malloc(21 * sizeof(char));
+	stamp = malloc(STAMP_SIZ * sizeof(char));
 	if (stamp) 
 		strftime(stamp, STAMP_SIZ, fmt, stmp);
 	else die("Memory error.", 1);
@@ -170,13 +170,13 @@ delete_note(int count, char *target[])
 }
 
 static void
-append_note(char *file, char *line) 
+append_note(char *file, char *s) 
 {
 	FILE *fp;
 	int i, n = 0;
 	char title[100], msg[100];
 	char *pt = title;
-	char *pl = line;
+	char *pl = s;
 
 	get_filename(file, NULL);
 	
@@ -185,11 +185,11 @@ append_note(char *file, char *line)
 		die("Couldn't open file.", 1);
 	
 	fprintf(fp, "\n\n%s \n", timestamp("%T"));
-	fprintf(fp, "%s", line);
+	fprintf(fp, "%s", s);
 	
 	/* Parse spaces to create note title: 3 words max (n < 3) */
-	for (i = strlen(line); n < 3 && i--; *pt++ = *pl++)
-		if (isspace((*line++)))
+	for (i = strlen(s); n < 3 && i--; *pt++ = *pl++)
+		if (isspace((*s++)))
 			n++;
 	
 	/*  If we count 3 spaces, the NULL goes at *(pt - 1), else at *pt */
