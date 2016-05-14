@@ -121,51 +121,6 @@ list_notes()
 }
 
 static void
-delete_note(int count, char *target[]) 
-{ 
-	int i = 0, c;
-	char **tp = target;
-	int tarray[20] = {};
-	int *tap = tarray;
-		
-	while (--count) {
-		++i;
-		FILE *fp;
-		char path[75];
-		
-		if (tp[i][0] == '-') 
-			continue;
-			
-		get_dir(path);
-		if (strlcat(path, tp[i], sizeof(path)) >= sizeof(path))
-			die("Truncated path to deletion target.", 1);
-		
-		/*  If target exists, store its argv index in tarray. */
-		if ((fp = fopen(path, "r")))
-			*tap++ = i;
-		else
-			printf("***No such file:\t%s\n", tp[i]);
-	}
-	
-	/*  Print targets via their index value stored in tarray */
-	tap = tarray;
-	if (*tap == '\0')
-		die("No files to delete.", 0);
-	
-	puts("Files to be deleted:");
-	for (c = 0; *tap; tap++, c++) 
-		printf("-> %s\n", tp[*tap]);
-		
-	puts("Confirm delete? (Upper-case \'Y\')");
-	if (getchar() != 'Y')
-		die("Deletion aborted.", 0);
-	
-	for (tap = tarray; *tap; tap++)
-		remove(tp[*tap]);
-	printf("File%s deleted.\n", (c > 1) ? "s" : "");
-}
-
-static void
 append_note(char *file, char *s) 
 {
 	FILE *fp;
@@ -237,11 +192,6 @@ main(int argc, char *argv[])
 				puts("Ignoring other arguments.");
 			}
 			list_notes();
-			break;
-		case 'd':
-			if (!argv[2]) 
-				die("Please provide files for deletion.", 0);
-			delete_note(argc, argv);
 			break;
 		case 'v':
 			if (argv[2]) 
