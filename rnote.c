@@ -24,14 +24,9 @@
 #define STAMP_SIZ 21 /* timestamp size */
 
 static void
-die(const char *s, int eflag) 
+die(const char *s) 
 {
-	if (!eflag)
-		puts(s);
-	else if (errno)
-		perror(s); 
-	else
-		printf("ERROR: %s\n", s);
+	errno ? perror(s) : printf("ERROR: %s\n", s);
 	exit(1);
 }
 
@@ -43,7 +38,13 @@ timestamp(char *s, const char *fmt)
 
 	time(&ts);
 	stmp = localtime(&ts);
-	strftime(s, STAMP_SIZ, fmt, stmp);
+	stamp = malloc(STAMP_SIZ * sizeof(char));
+	if (stamp) 
+		strftime(stamp, STAMP_SIZ, fmt, stmp);
+	else die("Memory error.");
+
+	return stamp;
+	free(stamp);
 }
 
 static void
@@ -54,10 +55,10 @@ get_dir(char *dir)
 	*dirp = dir;
 		
 	if (!snprintf(*dirp, sizeof(dirp), "%s%s", getenv("HOME"), NOTES_DIR))
-		die("Couldn't create path to ~/notes directory.", 1);
+		die("Couldn't create path to ~/notes directory.");
 
 	if (chdir(*dirp) != 0)
-		die("Couldn't change into ~/home directory.", 1);
+		die("Couldn't change into ~/home directory.");
 }
 
 static void 
@@ -74,7 +75,7 @@ get_filename(char *path, char *name)
 	get_dir(path);
 
 	if (strlcat(*pathp, namep, sizeof(pathp)) >= sizeof(pathp))
-		die("Unable to add file name to path.", 1);
+		die("Unable to add file name to path.");
 	else	
 		path = *pathp;
 	
@@ -110,7 +111,7 @@ list_notes()
 
 	n = scandir(file, &d, 0, alphasort);
 	if (n < 0)
-		die("Couldn't open ~/notes directory.", 1);
+		die("Couldn't open ~/notes directory.");
 	
 	while (n--) {
 		if ((*d)->d_name[0] != '.')
@@ -125,32 +126,31 @@ append_note(char *file, char *s)
 {
 	FILE *fp;
 	int i, n = 0;
-	char title[100], msg[100], time[STAMP_SIZ];
-	char *pt = title;
-	char *pl = s;
+	char title[100], msg[100];
+	char *tp = title, *lp = s;
 
 	get_filename(file, NULL);
 	timestamp(time, "%T");
 	
 	fp = fopen(file, "a+");
 	if (!fp) 
-		die("Couldn't open file.", 1);
+		die("Couldn't open file.");
 	
 	fprintf(fp, "\n\n%s \n", time);
 	fprintf(fp, "%s", s);
 	
 	/* Parse spaces to create note title: 3 words max (n < 3) */
-	for (i = strlen(s); n < 3 && i--; *pt++ = *pl++)
+	for (i = strlen(s); n < 3 && i--; *tp++ = *lp++)
 		if (isspace((*s++)))
 			n++;
 	
 	/*  If we count 3 spaces, the NULL goes at *(pt - 1), else at *pt */
-	pt[(n == 3) ? -1 : 0] = '\0';
+	tp[(n == 3) ? -1 : 0] = '\0';
 
-	if (strlen(title) > sizeof(title)) {
+	if (strlen(title) > sizeof(title)) 
 		puts("Title bonked, but we recorded your note!");
-	} else	{
-		snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
+	else	{
+		snprintf(msg, sizeof(msg), "> Note \"%s ...\" written to file %s", title, file);
 		puts(msg);
 	}
 	
@@ -183,7 +183,7 @@ main(int argc, char *argv[])
 		} else if (argv[1][0] != '-') {
 			write_note(file, argv[1]);			
 		} else
-			die("Empty option flag.", 1);		
+			die("Empty option flag.");		
 	} else {
 		switch (opt) {
 		case 'l':
@@ -199,7 +199,7 @@ main(int argc, char *argv[])
 			printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
 			break;
 		default :
-			die("Not a valid option.", 0);
+			die("Not a valid option.");
 			break;
 		}
 	}
