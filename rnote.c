@@ -7,7 +7,7 @@
 *
 */
 
-#define VERSION "rnote-0.4" 
+#define VERSION "rnote-0.5" 
 #define YEAR "2016" 
 
 #include <stdio.h>
