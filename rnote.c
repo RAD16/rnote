@@ -24,14 +24,9 @@
 #define STAMP_SIZ 21 /* timestamp size */
 
 static void
-die(const char *s, int eflag) 
+die(const char *s) 
 {
-	if (!eflag)
-		puts(s);
-	else if (errno)
-		perror(s); 
-	else
-		printf("ERROR: %s\n", s);
+	errno ? perror(s) : printf("ERROR: %s\n", s);
 	exit(1);
 }
 
@@ -47,7 +42,7 @@ static char
 	stamp = malloc(STAMP_SIZ * sizeof(char));
 	if (stamp) 
 		strftime(stamp, STAMP_SIZ, fmt, stmp);
-	else die("Memory error.", 1);
+	else die("Memory error.");
 
 	return stamp;
 	free(stamp);
@@ -61,10 +56,10 @@ get_dir(char *dir)
 	*dirp = dir;
 		
 	if (!snprintf(*dirp, sizeof(dirp), "%s%s", getenv("HOME"), NOTES_DIR))
-		die("Couldn't create path to ~/notes directory.", 1);
+		die("Couldn't create path to ~/notes directory.");
 
 	if (chdir(*dirp) != 0)
-		die("Couldn't change into ~/home directory.", 1);
+		die("Couldn't change into ~/home directory.");
 }
 
 static void 
@@ -78,7 +73,7 @@ get_filename(char *path, char *name)
 	get_dir(path);
 
 	if (strlcat(*pathp, namep, sizeof(pathp)) >= sizeof(pathp))
-		die("Unable to add file name to path.", 1);
+		die("Unable to add file name to path.");
 	else	
 		path = *pathp;
 	
@@ -114,7 +109,7 @@ list_notes()
 
 	n = scandir(file, &d, 0, alphasort);
 	if (n < 0)
-		die("Couldn't open ~/notes directory.", 1);
+		die("Couldn't open ~/notes directory.");
 	
 	while (n--) {
 		if ((*d)->d_name[0] != '.')
@@ -125,80 +120,34 @@ list_notes()
 }
 
 static void
-delete_note(int count, char *target[]) 
-{ 
-	int i = 0, c;
-	char **tp = target;
-	int tarray[20] = {};
-	int *tap = tarray;
-		
-	while (--count) {
-		++i;
-		FILE *fp;
-		char path[75];
-		
-		if (tp[i][0] == '-') 
-			continue;
-			
-		get_dir(path);
-		if (strlcat(path, tp[i], sizeof(path)) >= sizeof(path))
-			die("Truncated path to deletion target.", 1);
-		
-		/*  If target exists, store its argv index in tarray. */
-		if ((fp = fopen(path, "r")))
-			*tap++ = i;
-		else
-			printf("***No such file:\t%s\n", tp[i]);
-	}
-	
-	/*  Print targets via their index value stored in tarray */
-	tap = tarray;
-	if (*tap == '\0')
-		die("No files to delete.", 0);
-	
-	puts("Files to be deleted:");
-	for (c = 0; *tap; tap++, c++) 
-		printf("-> %s\n", tp[*tap]);
-		
-	puts("Confirm delete? (Upper-case \'Y\')");
-	if (getchar() != 'Y')
-		die("Deletion aborted.", 0);
-	
-	for (tap = tarray; *tap; tap++)
-		remove(tp[*tap]);
-	printf("File%s deleted.\n", (c > 1) ? "s" : "");
-}
-
-static void
 append_note(char *file, char *s) 
 {
 	FILE *fp;
 	int i, n = 0;
 	char title[100], msg[100];
-	char *pt = title;
-	char *pl = s;
+	char *tp = title, *lp = s;
 
 	get_filename(file, NULL);
 	
 	fp = fopen(file, "a+");
 	if (!fp) 
-		die("Couldn't open file.", 1);
+		die("Couldn't open file.");
 	
 	fprintf(fp, "\n\n%s \n", timestamp("%T"));
 	fprintf(fp, "%s", s);
 	
 	/* Parse spaces to create note title: 3 words max (n < 3) */
-	for (i = strlen(s); n < 3 && i--; *pt++ = *pl++)
+	for (i = strlen(s); n < 3 && i--; *tp++ = *lp++)
 		if (isspace((*s++)))
 			n++;
 	
 	/*  If we count 3 spaces, the NULL goes at *(pt - 1), else at *pt */
-	pt[(n == 3) ? -1 : 0] = '\0';
+	tp[(n == 3) ? -1 : 0] = '\0';
 
-	if (strlen(title) > sizeof(title)) {
+	if (strlen(title) > sizeof(title)) 
 		puts("Title bonked, but we recorded your note!");
-	} else	{
-		snprintf(msg, sizeof(msg), "> Note \"%s\" written to file %s", title, file);
+	else	{
+		snprintf(msg, sizeof(msg), "> Note \"%s ...\" written to file %s", title, file);
 		puts(msg);
 	}
 	
@@ -231,7 +180,7 @@ main(int argc, char *argv[])
 		} else if (argv[1][0] != '-') {
 			write_note(file, argv[1]);			
 		} else
-			die("Empty option flag.", 1);		
+			die("Empty option flag.");		
 	} else {
 		switch (opt) {
 		case 'l':
@@ -241,18 +190,13 @@ main(int argc, char *argv[])
 			}
 			list_notes();
 			break;
-		case 'd':
-			if (!argv[2]) 
-				die("Please provide files for deletion.", 0);
-			delete_note(argc, argv);
-			break;
 		case 'v':
 			if (argv[2]) 
 				puts("***Ignoring extra arguments.");
 			printf("%s, (c) %s Ryan Donnelly\n", VERSION, YEAR);
 			break;
 		default :
-			die("Not a valid option.", 0);
+			die("Not a valid option.");
 			break;
 		}
 	}
