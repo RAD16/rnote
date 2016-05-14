@@ -30,10 +30,11 @@ die(const char *s)
 	exit(1);
 }
 
-static void
-timestamp(char *s, const char *fmt) 
+static char *
+timestamp(const char *fmt) 
 {
 	struct tm *stmp;
+	char *stamp;
         time_t ts;
 
 	time(&ts);
@@ -64,12 +65,12 @@ get_dir(char *dir)
 static void 
 get_filename(char *path, char *name) 
 {
-	char *pathp[100], time[STAMP_SIZ];
+	char *pathp[100];
 	char *namep;
 	
-	timestamp(time, "%Y-%m-%d");
 	
-	namep = (name) ?: time;
+	
+	namep = (name) ?: timestamp("%Y-%m-%d");
 	*pathp = path;
 	
 	get_dir(path);
@@ -130,13 +131,12 @@ append_note(char *file, char *s)
 	char *tp = title, *lp = s;
 
 	get_filename(file, NULL);
-	timestamp(time, "%T");
 	
 	fp = fopen(file, "a+");
 	if (!fp) 
 		die("Couldn't open file.");
 	
-	fprintf(fp, "\n\n%s \n", time);
+	fprintf(fp, "\n\n%s \n", timestamp("%T"));
 	fprintf(fp, "%s", s);
 	
 	/* Parse spaces to create note title: 3 words max (n < 3) */
