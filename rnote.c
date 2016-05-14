@@ -68,8 +68,6 @@ get_filename(char *path, char *name)
 	char *pathp[100];
 	char *namep;
 	
-	
-	
 	namep = (name) ?: timestamp("%Y-%m-%d");
 	*pathp = path;
 	
@@ -80,10 +78,9 @@ get_filename(char *path, char *name)
 	else	
 		path = *pathp;
 	
-	if (!name) 
+	if (name == NULL) 
 		free(namep);
 }
-
 
 static void
 write_note(char *path, char *name) 
